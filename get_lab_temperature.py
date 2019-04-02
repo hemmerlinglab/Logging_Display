@@ -10,6 +10,7 @@ import datetime
 from time import mktime
 from scipy.interpolate import interp1d
 import fileinput
+from read_in_config import read_config
 
 def conv_dt_to_epoch(dt):
     # dt is an array of datetimes
@@ -39,7 +40,7 @@ def readin_file(main_path, filename, extension = '.log', curr_weather = False):
     if not curr_weather:
         compl_file = main_path + filename + extension
     else:
-        compl_file = main_path + filename + "_weather" + extension
+        compl_file = main_path + filename + "_weather.csv"
 
     counter = 0
     flag = 0
@@ -52,20 +53,7 @@ def readin_file(main_path, filename, extension = '.log', curr_weather = False):
                    hlp = l[0].split('-')[1]
                    dat = l[0].split('-')[0].replace('/','-')
                    hlp = list(hlp)
-                   
-                   #if filename == tomorrow: 
-                   #   lst.append(dat)
-                   #   
-                   #   if len(lst) > 1:
-                   #     if lst[flag] != lst[flag + 1] and counter < 6:
-                   #       counter += 1
-                   #     
-                   #     flag += 1  
-                   #   hlp = [filenames[counter] + 'T'] + hlp[0:] + ['.000000000-0000']
-                   #       
-                   #    
-                   #else:
-
+                  
                    hlp = [dat + 'T'] + hlp[0:] + ['.000000000-0000']
 
                    #x.append("".join(hlp))
@@ -105,36 +93,41 @@ def readin_file(main_path, filename, extension = '.log', curr_weather = False):
 # main
 ###########################################################
 
-def get_lab_temperatures():
-
-    # parameters
-    main_path = '/home/lab-user/Lab/Group/Logs/Temperatures_Lab/' # path for temperature data
+def get_lab_temperatures(main_path = '/home/molecules/logging/Temperatures_Lab/'):
 
     # get today's date
     my_today = datetime.datetime.today()
-    today = str(my_today.strftime('%Y-%m-%d'))
 
 
     filename = my_today.strftime('%Y-%m-%d')
 
-    data = [] # array of sensor logs for all days
-    data_outside = [] # array of sensor logs for all days
-
-    data.append(readin_file(main_path, filename))
+    # read in data
+    data = readin_file(main_path, filename)
+    data_outside = readin_file(main_path, filename, curr_weather = True)
+  
    
-    print(data)
+    sensors = read_config()
 
-    # list of sensors with their properties
-    # location, low_T, high_T
-    sensor_table = {
-		'283825AD090000C2' : {'location':'Room5','low_T':15.0,'high_T':25.0},
-		'289AB0AE0900001D' : {'location':'Room55','low_T':15.0,'high_T':25.0},
-		'28D8CDAC09000080' : {'location':'A/C Outlet','low_T':15.0,'high_T':25.0},
-        '285218AE0900002E' : {'location':'Electron Table (5x12)','low_T':15.0,'high_T':25.0},
-        '28FECFAD09000088' : {'location':'Molecule Table (5x10)','low_T':15.0,'high_T':25.0},
-        '283B3BAE090000CD' : {'location':'Server/Room','low_T':15.0,'high_T':25.0},
-        'currT' : {'location':'Riverside - T','low_T':5.0,'high_T':25.0},
-        'currH' : {'location':'Riverside - H','low_T':15.0,'high_T':25.0}
-        }
+    print(sensors) 
 
 
+    ## list of sensors with their properties
+    ## location, low_T, high_T
+    #sensor_table = {
+    #    	'283825AD090000C2' : {'location':'Room5','low_T':15.0,'high_T':25.0},
+    #    	'289AB0AE0900001D' : {'location':'Room55','low_T':15.0,'high_T':25.0},
+    #    	'28D8CDAC09000080' : {'location':'A/C Outlet','low_T':15.0,'high_T':25.0},
+    #    '285218AE0900002E' : {'location':'Electron Table (5x12)','low_T':15.0,'high_T':25.0},
+    #    '28FECFAD09000088' : {'location':'Molecule Table (5x10)','low_T':15.0,'high_T':25.0},
+    #    '283B3BAE090000CD' : {'location':'Server/Room','low_T':15.0,'high_T':25.0},
+    #    'currT' : {'location':'Riverside - T','low_T':5.0,'high_T':25.0},
+    #    'currH' : {'location':'Riverside - H','low_T':15.0,'high_T':25.0}
+    #    }
+
+
+    #s.line(xd, y, line_color = colors[n], legend = sensor_table[s_id]['location'])
+
+    
+
+
+    return data
