@@ -1,0 +1,4 @@
+*.swp
+*.pyc
+logging/
+__pycache__/
