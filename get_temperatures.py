@@ -22,7 +22,61 @@ def conv_dt_to_epoch(dt):
 
     return tarr
 
-def readin_file(main_path, filename, extension = '.log', curr_weather = False):
+def readin_data(main_path, filename, extension = '.log', unit = ''):
+    
+    # reads in csv file with data
+    # 2018/08/30-17:38:01,cool_in,74.267998,cool_out,73.693001,dc_power_status,1,he_high_pressure,224.000000,he_low_pressure,223.000000,he_temp,75.325996,motor_current,0.222085,msg,Ready To Start,msg_urgent,0,oil_temp,74.403000,three_phase_power,1
+    # 2018/08/30-17:39:01,cool_in,74.267998,cool_out,73.707001,dc_power_status,1,he_high_pressure,224.000000,he_low_pressure,224.000000,he_temp,75.334999,motor_current,0.234595,msg,Ready To Start,msg_urgent,0,oil_temp,74.412003,three_phase_power,1
+
+    compl_file = main_path + filename + extension
+    x = []
+    y = np.array([])
+
+    output = {} # dictionary for data on all sensors in the file
+    
+    if os.path.isfile(compl_file):
+        with open(compl_file, 'r') as f:
+           for line in f.readlines():
+               if not line.isspace():
+                   l = line[:-1].split(',') # line[:-1] chops off the \n at the end of the line
+                   hlp = l[0].split('-')[1]
+                   dat = l[0].split('-')[0].replace('/','-')
+                   hlp = list(hlp)
+                   
+                   hlp = [dat + 'T'] + hlp[0:] + ['.000000000-0000']
+
+                   # get time stamp
+                   x = "".join(hlp) # time stamp
+        
+                   # read in sensor data
+                   sensor_data = l[1:]
+        
+                   for k in range(0, len(sensor_data), 2):
+                        key = sensor_data[k]
+                        
+                        try:
+                            val = sensor_data[k+1].strip() # trim white spaces
+                        except:
+                            key = 'N/A'
+                            val = np.nan
+
+                        # check if key already exists
+                        if key in output:
+                            output[key]['x'].append(x)
+                            output[key]['y'].append(val)
+                        else:
+                            output[key] = {}
+                            output[key]['x'] = [x]
+                            output[key]['y'] = [val]
+                            output[key]['title'] = filename
+                        
+    else:
+        output = {}
+        print('File ' + compl_file + ' does not exist.')
+   
+    return output
+
+def readin_lab_temp_file(main_path, filename, extension = '.log', curr_weather = False):
     
     # reads in csv file with temperatures
     # 2018/04/30-00:00:37,0,283B3BAE090000CD,18.81,1,283B3BFE090000CD,38.81
@@ -88,46 +142,60 @@ def readin_file(main_path, filename, extension = '.log', curr_weather = False):
     return output
 
 
-
-###########################################################
-# main
-###########################################################
-
-def get_lab_temperatures(main_path = '/home/molecules/logging/Temperatures_Lab/'):
-
-    # get today's date
-    my_today = datetime.datetime.today()
-
+def get_lab_temperatures(main_path = 'logging/Temperatures_Lab/', my_today = datetime.datetime.today()):
 
     filename = my_today.strftime('%Y-%m-%d')
 
     # read in data
-    data = readin_file(main_path, filename)
-    data_outside = readin_file(main_path, filename, curr_weather = True)
-  
-   
-    sensors = read_config()
+    data = readin_lab_temp_file(main_path, filename)
+    data.update(readin_lab_temp_file(main_path, filename, curr_weather = True))
 
-    print(sensors) 
+    return (data)
 
 
-    ## list of sensors with their properties
-    ## location, low_T, high_T
-    #sensor_table = {
-    #    	'283825AD090000C2' : {'location':'Room5','low_T':15.0,'high_T':25.0},
-    #    	'289AB0AE0900001D' : {'location':'Room55','low_T':15.0,'high_T':25.0},
-    #    	'28D8CDAC09000080' : {'location':'A/C Outlet','low_T':15.0,'high_T':25.0},
-    #    '285218AE0900002E' : {'location':'Electron Table (5x12)','low_T':15.0,'high_T':25.0},
-    #    '28FECFAD09000088' : {'location':'Molecule Table (5x10)','low_T':15.0,'high_T':25.0},
-    #    '283B3BAE090000CD' : {'location':'Server/Room','low_T':15.0,'high_T':25.0},
-    #    'currT' : {'location':'Riverside - T','low_T':5.0,'high_T':25.0},
-    #    'currH' : {'location':'Riverside - H','low_T':15.0,'high_T':25.0}
-    #    }
+def get_dewar_temperatures(main_path = 'logging/Dewar_Temperatures/', my_today = datetime.datetime.today()):
 
+    filename = my_today.strftime('%Y-%m-%d') + '_dewar'
 
-    #s.line(xd, y, line_color = colors[n], legend = sensor_table[s_id]['location'])
-
-    
-
+    # read in data
+    data = readin_data(main_path, filename)
 
     return data
+
+def get_chilled_water(main_path = 'logging/PulseTube_Chilled_Water/', my_today = datetime.datetime.today()):
+
+    filename = my_today.strftime('%Y-%m-%d') + '_chilled_water_pulsetube'
+
+    # read in data
+    data = readin_data(main_path, filename)
+
+    return data
+
+def get_pulsetube(main_path = 'logging/PulseTube/', my_today = datetime.datetime.today()):
+
+    filename = my_today.strftime('%Y-%m-%d') + '_pulsetube'
+
+    # read in data
+    data = readin_data(main_path, filename)
+
+    return data
+
+
+def get_temperatures():
+
+    data = []
+
+    data.append(get_lab_temperatures())
+    data.append(get_dewar_temperatures())    
+    data.append(get_chilled_water())
+    data.append(get_pulsetube())
+
+    # combine all data
+    all_data = data[0].copy()
+    for k in range(len(data)):
+        all_data.update(data[k])
+
+    return (all_data)
+
+
+

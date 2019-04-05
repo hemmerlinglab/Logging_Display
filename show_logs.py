@@ -23,7 +23,7 @@ else:
 from matplotlib.figure import Figure
 
 
-from get_lab_temperature import *
+from get_temperatures import *
 
 
 
@@ -54,8 +54,13 @@ class App(QWidget):
         self.timer.start(self.update_interval)
 
     def tick(self):
-        print("hallo")
-        get_lab_temperatures()
+        #print("hallo")
+        data = get_temperatures()
+
+        #print(data.keys())
+
+        # update all plots
+        self.main_plot.plot(data, ['0', '1'], colors = ['r-', 'k-']) 
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -71,10 +76,10 @@ class App(QWidget):
         self.tabs.addTab(self.tab_aux, "Aux")
         self.tabs.addTab(self.tab_log, "Log")
         
-        self.canvas = PlotCanvas(self, width=5, height=4)
+        self.main_plot = PlotCanvas(self, width=5, height=4)
         
         self.tab_main.layout = QVBoxLayout()
-        self.tab_main.layout.addWidget(self.canvas)
+        self.tab_main.layout.addWidget(self.main_plot)
         self.tab_main.setLayout(self.tab_main.layout)
 
 
@@ -99,10 +104,6 @@ class App(QWidget):
         self.setLayout(self.layout) 
  
         # Show widget
-        self.show()
-        
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
       
         self.show()
 
@@ -111,30 +112,43 @@ class App(QWidget):
 class PlotCanvas(FigureCanvas):
  
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        
+        self.axes = self.fig.add_subplot(111)
  
-        FigureCanvas.__init__(self, fig)
+        FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
  
         FigureCanvas.setSizePolicy(self,
                 QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        self.x = []
-        self.y = []
-        self.plot()
+
+        self.fig.draw()
+        #self.plot(0,0)
  
  
-    def plot(self, fit_plot = None):
-        ax = self.figure.add_subplot(111)
-        # data
-        ax.plot(self.x, self.y, 'ro')
-        # fit
-        if not fit_plot is None:
-            (fit_x, fit_y) = fcn2min(fit_plot.params, self.x, None, plot_fit = True)
-            ax.plot(fit_x, fit_y)
+    def plot(self, data, sensors, ymin = 0, ymax = 300, colors = [], fit_plot = None):
         
+        self.axes.clear()
+        for n, s in enumerate(sensors):
+            x = np.array(data[s]['x'], dtype = np.datetime64)
+            y = np.array(data[s]['y'])
+
+            ind = np.argsort(x)
+            x = x[ind]
+            y = y[ind]
+
+            print(len(x))
+
+            #self.axes.plot(x, y, colors[n])
+
+            line.set_ydata(y)
+            self.axes.draw_artist(line)
+          
+        #self.axes.set_ylim(ymin, ymax)
+        self.axes.set_xticks([297])
+
         self.draw()
 
 
