@@ -22,31 +22,27 @@ else:
         FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
-
 from get_temperatures import *
 
-
-
-
-
-
-
+from read_in_config import read_config
 
 
 class App(QWidget):
  
     def __init__(self):
         super().__init__()
-        self.title = 'PyQt5 table - pythonspot.com'
+        self.title = 'Logging Plots'
         self.left = 0
         self.top = 0
-        self.width = 1000
+        self.width = 1500
         self.height = 500
         self.no_of_rows = 20
 
         self.update_interval = 1000 # ms
 
-        self.initUI()
+        self.sensors = read_config()        
+
+        self.initUI()        
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.tick)
@@ -60,7 +56,15 @@ class App(QWidget):
         #print(data.keys())
 
         # update all plots
-        self.main_plot.plot(data, ['0', '1'], colors = ['r-', 'k-']) 
+        self.main_plot.plot(data, ['0', '1', '2', '3'], self.sensors, colors = ['g-', 'k-', 'r-', 'b-']) 
+        
+        self.pulsetube_plot.plot(data, ['he_temp', 'oil_temp', 'cool_in', 'cool_out'], self.sensors, ymin = 50.0, ymax = 100.0, colors = ['g-', 'y-', 'r-', 'b-']) 
+        
+        self.pulsetube_press_plot.plot(data, ['he_high_pressure', 'he_low_pressure'], self.sensors, ymin = 150.0, ymax = 250.0, colors = ['r-', 'b-']) 
+        
+        self.pulsetube_curr_plot.plot(data, ['motor_current'], self.sensors, ymin = 0.0, ymax = 12.0, colors = ['k-']) 
+        
+        self.chilled_water_plot.plot(data, ['temp'], self.sensors, ymin = 0.0, ymax = 100.0, colors = ['k-']) 
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -69,18 +73,32 @@ class App(QWidget):
         self.tabs = QTabWidget()
 
         self.tab_main = QWidget()
-        self.tab_aux = QWidget()
+        self.tab_pulse = QWidget()
+        self.tab_pulse_press = QWidget()
         self.tab_log = QWidget()
 
-        self.tabs.addTab(self.tab_main, "Main")
-        self.tabs.addTab(self.tab_aux, "Aux")
+        self.tabs.addTab(self.tab_main, "Dewar")
+        self.tabs.addTab(self.tab_pulse, "Pulse Tube")
         self.tabs.addTab(self.tab_log, "Log")
         
         self.main_plot = PlotCanvas(self, width=5, height=4)
+        self.pulsetube_plot = PlotCanvas(self, width=5, height=4)
+        self.room_plot = PlotCanvas(self, width=5, height=4)
+        self.pulsetube_press_plot = PlotCanvas(self, width=5, height=4)
+        self.pulsetube_curr_plot = PlotCanvas(self, width=5, height=4)
+        self.chilled_water_plot = PlotCanvas(self, width=5, height=4)
         
         self.tab_main.layout = QVBoxLayout()
         self.tab_main.layout.addWidget(self.main_plot)
         self.tab_main.setLayout(self.tab_main.layout)
+
+        self.tab_pulse.layout = QHBoxLayout()
+        self.tab_pulse.layout.addWidget(self.pulsetube_plot)
+        self.tab_pulse.layout.addWidget(self.pulsetube_press_plot)
+        self.tab_pulse.layout.addWidget(self.pulsetube_curr_plot)
+        self.tab_pulse.layout.addWidget(self.chilled_water_plot)
+        self.tab_pulse.setLayout(self.tab_pulse.layout)
+
 
 
         ##self.createTable()
@@ -124,30 +142,40 @@ class PlotCanvas(FigureCanvas):
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-        self.fig.draw()
+        #self.fig.draw()
         #self.plot(0,0)
  
  
-    def plot(self, data, sensors, ymin = 0, ymax = 300, colors = [], fit_plot = None):
+    def plot(self, data, sensors, sensor_config, ymin = 0, ymax = 300, colors = [], fit_plot = None):
         
         self.axes.clear()
+        legs = []
         for n, s in enumerate(sensors):
             x = np.array(data[s]['x'], dtype = np.datetime64)
-            y = np.array(data[s]['y'])
+            y = np.array(data[s]['y'], dtype = np.float)
 
             ind = np.argsort(x)
             x = x[ind]
             y = y[ind]
 
-            print(len(x))
+            x = x[-100:]
+            y = y[-100:]
 
-            #self.axes.plot(x, y, colors[n])
+            legs.append(data[s]['title'])
 
-            line.set_ydata(y)
-            self.axes.draw_artist(line)
+            #print(len(x))
+
+            self.axes.plot(x, y, colors[n], label = sensor_config[s]['location'])
+
+            #line = 
+            #line.set_ydata(y)
+            #self.axes.draw_artist(line)
           
-        #self.axes.set_ylim(ymin, ymax)
-        self.axes.set_xticks([297])
+        self.axes.set_ylim([ymin, ymax])
+
+        self.axes.legend()
+        #self.axes.set_yticks([298.0])
+        #self.axes.set_yticklabels(['298.0'])
 
         self.draw()
 
