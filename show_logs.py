@@ -3,7 +3,7 @@
 ##################################
 
 import sys
-from PyQt5.QtWidgets import QTabWidget, QSizePolicy, QTextEdit, QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QLineEdit, QTabWidget, QSizePolicy, QTextEdit, QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QPushButton, QHBoxLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, QTimer
 import numpy as np
@@ -39,6 +39,7 @@ class App(QWidget):
         self.no_of_rows = 20
 
         self.update_interval = 1000 # ms
+        self.no_of_points = 100
 
         self.sensors = read_config()        
 
@@ -46,25 +47,28 @@ class App(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.tick)
-        
         self.timer.start(self.update_interval)
 
     def tick(self):
         #print("hallo")
         data = get_temperatures()
 
+        self.no_of_points = int(self.no_of_points_to_plot_box.text())
+
         #print(data.keys())
 
         # update all plots
-        self.main_plot.plot(data, ['0', '1', '2', '3'], self.sensors, colors = ['g-', 'k-', 'r-', 'b-']) 
+        self.main_plot.plot(data, ['0', '1', '2', '3'], self.sensors, ymin = 150.0, ymax = 300.0, colors = ['g-', 'k-', 'r-', 'b-'], last_no_of_points = self.no_of_points) 
         
-        self.pulsetube_plot.plot(data, ['he_temp', 'oil_temp', 'cool_in', 'cool_out'], self.sensors, ymin = 50.0, ymax = 100.0, colors = ['g-', 'y-', 'r-', 'b-']) 
+        self.pulsetube_he_plot.plot(data, ['he_temp', 'oil_temp'], self.sensors, ymin = 50.0, ymax = 180.0, colors = ['g-', 'k-'], last_no_of_points = self.no_of_points) 
         
-        self.pulsetube_press_plot.plot(data, ['he_high_pressure', 'he_low_pressure'], self.sensors, ymin = 150.0, ymax = 250.0, colors = ['r-', 'b-']) 
+        self.pulsetube_cool_plot.plot(data, ['cool_in', 'cool_out'], self.sensors, ymin = 50.0, ymax = 110.0, colors = ['b','r'], last_no_of_points = self.no_of_points) 
         
-        self.pulsetube_curr_plot.plot(data, ['motor_current'], self.sensors, ymin = 0.0, ymax = 12.0, colors = ['k-']) 
+        self.pulsetube_press_plot.plot(data, ['he_high_pressure', 'he_low_pressure'], self.sensors, ymin = 50.0, ymax = 350.0, colors = ['b-', 'r-'], last_no_of_points = self.no_of_points) 
         
-        self.chilled_water_plot.plot(data, ['temp'], self.sensors, ymin = 0.0, ymax = 100.0, colors = ['k-']) 
+        self.pulsetube_curr_plot.plot(data, ['motor_current'], self.sensors, ymin = 0.0, ymax = 20.0, colors = ['k-'], last_no_of_points = self.no_of_points) 
+        
+        self.chilled_water_plot.plot(data, ['temp'], self.sensors, ymin = 40.0, ymax = 80.0, conversion = lambda x : (120.10/10.0 * x) * 9.0/5.0 + 32.0, colors = ['b-'], last_no_of_points = self.no_of_points) 
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -76,49 +80,46 @@ class App(QWidget):
         self.tab_pulse = QWidget()
         self.tab_pulse_press = QWidget()
         self.tab_log = QWidget()
+        self.tab_settings = QWidget()
 
         self.tabs.addTab(self.tab_main, "Dewar")
         self.tabs.addTab(self.tab_pulse, "Pulse Tube")
+        self.tabs.addTab(self.tab_settings, "Settings")
         self.tabs.addTab(self.tab_log, "Log")
-        
+
+        # plots
         self.main_plot = PlotCanvas(self, width=5, height=4)
-        self.pulsetube_plot = PlotCanvas(self, width=5, height=4)
+        self.pulsetube_he_plot = PlotCanvas(self, width=5, height=4)
+        self.pulsetube_cool_plot = PlotCanvas(self, width=5, height=4)
         self.room_plot = PlotCanvas(self, width=5, height=4)
         self.pulsetube_press_plot = PlotCanvas(self, width=5, height=4)
         self.pulsetube_curr_plot = PlotCanvas(self, width=5, height=4)
         self.chilled_water_plot = PlotCanvas(self, width=5, height=4)
         
+        # settings widgets
+        self.update_interval_box = QLineEdit(str(self.update_interval))
+        self.no_of_points_to_plot_box = QLineEdit(str(self.no_of_points))
+
         self.tab_main.layout = QVBoxLayout()
         self.tab_main.layout.addWidget(self.main_plot)
         self.tab_main.setLayout(self.tab_main.layout)
 
         self.tab_pulse.layout = QHBoxLayout()
-        self.tab_pulse.layout.addWidget(self.pulsetube_plot)
+        self.tab_pulse.layout.addWidget(self.pulsetube_he_plot)
+        self.tab_pulse.layout.addWidget(self.pulsetube_cool_plot)
         self.tab_pulse.layout.addWidget(self.pulsetube_press_plot)
         self.tab_pulse.layout.addWidget(self.pulsetube_curr_plot)
         self.tab_pulse.layout.addWidget(self.chilled_water_plot)
         self.tab_pulse.setLayout(self.tab_pulse.layout)
 
+        self.tab_settings.layout = QVBoxLayout()
+        self.tab_settings.layout.addWidget(self.update_interval_box)
+        self.tab_settings.layout.addWidget(self.no_of_points_to_plot_box)
+        self.tab_settings.setLayout(self.tab_settings.layout)
 
 
-        ##self.createTable()
- 
-        #self.button = QPushButton('Fit', self)
-        #self.button.setToolTip('This is an example button')
-        #self.button.move(100,70)
-        ##self.button.clicked.connect(self.button_click)
-
-
-        #self.canvas.move(0,0)
-
-        #self.textbox = QTextEdit()
-
-        # Add box layout, add table to box layout and add box layout to widget
         self.layout = QHBoxLayout()
-        #self.layout.addWidget(self.tableWidget) 
-        #self.layout.addWidget(self.canvas) 
         self.layout.addWidget(self.tabs) 
-        #self.layout.addWidget(self.textbox) 
         self.setLayout(self.layout) 
  
         # Show widget
@@ -146,26 +147,30 @@ class PlotCanvas(FigureCanvas):
         #self.plot(0,0)
  
  
-    def plot(self, data, sensors, sensor_config, ymin = 0, ymax = 300, colors = [], fit_plot = None):
+    def plot(self, data, sensors, sensor_config, ymin = 0, ymax = 300, colors = [], conversion = lambda y : y, fit_plot = None, last_no_of_points = 100):
         
         self.axes.clear()
         legs = []
         for n, s in enumerate(sensors):
-            x = np.array(data[s]['x'], dtype = np.datetime64)
-            y = np.array(data[s]['y'], dtype = np.float)
+            try:
+                x = np.array(data[s]['x'], dtype = np.datetime64)
+                y = np.array(data[s]['y'], dtype = np.float)
+            except:
+                x = [0]
+                y = [0]
 
             ind = np.argsort(x)
             x = x[ind]
             y = y[ind]
 
-            x = x[-100:]
-            y = y[-100:]
+            x = x[-last_no_of_points:]
+            y = conversion(y[-last_no_of_points:])
 
             legs.append(data[s]['title'])
 
             #print(len(x))
 
-            self.axes.plot(x, y, colors[n], label = sensor_config[s]['location'])
+            self.axes.plot(x, y, colors[n], label = sensor_config[s]['location'] + ': ' + "{0:3.2f}{1}".format(y[-1], sensor_config[s]['unit']))
 
             #line = 
             #line.set_ydata(y)
