@@ -28,6 +28,7 @@ from get_temperatures import *
 
 from read_in_config import read_config
 
+from analoggaugewidget import *
 
 class App(QWidget):
  
@@ -75,11 +76,17 @@ class App(QWidget):
         self.tabs.addTab(self.tab_settings, "Settings")
         self.tabs.addTab(self.tab_log, "Log")
 
+        # gauge displays
+        self.pt_he_temp = AnalogGaugeWidget()
+        self.pt_current = AnalogGaugeWidget()
+
         # settings widgets
         self.update_interval_box = QLineEdit(str(self.update_interval))
         self.no_of_points_to_plot_box = QLineEdit(str(self.no_of_points))
 
-        self.tab_main.layout = QVBoxLayout()
+        self.tab_main.layout = QHBoxLayout()
+        self.tab_main.layout.addWidget(self.pt_he_temp)
+        self.tab_main.layout.addWidget(self.pt_current)
         self.tab_main.setLayout(self.tab_main.layout)
 
         self.tab_pulse.layout = QHBoxLayout()
