@@ -13,13 +13,18 @@ import fileinput
 from scipy.interpolate import interp1d
 
 
+
+
 from matplotlib.backends.qt_compat import QtCore, QtWidgets, is_pyqt5
-if is_pyqt5():
-    from matplotlib.backends.backend_qt5agg import (
+
+from matplotlib.backends.backend_qt5agg import (
         FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-else:
-    from matplotlib.backends.backend_qt4agg import (
-        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+
+#from matplotlib.backends.backend_GTKAgg import (
+#        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+
+
+
 from matplotlib.figure import Figure
 
 from get_temperatures import *
@@ -41,7 +46,7 @@ class App(QWidget):
         self.update_interval = 1000 # ms
         self.no_of_points = 100
 
-        self.sensors = read_config()        
+        self.sensors = read_config()
 
         self.initUI()        
 
@@ -58,7 +63,11 @@ class App(QWidget):
         #print(data.keys())
 
         # update all plots
-        self.main_plot.plot(data, ['0', '1', '2', '3'], self.sensors, ymin = 150.0, ymax = 300.0, colors = ['g-', 'k-', 'r-', 'b-'], last_no_of_points = self.no_of_points) 
+        self.main_plot.plot(data, ['0'], self.sensors, ymin = 30.0, ymax = 50.0, colors = ['g-'], last_no_of_points = self.no_of_points) 
+        
+        self.main_4K_plot.plot(data, ['1', '2', '3'], self.sensors, ymin = 0.0, ymax = 10.0, colors = ['k-', 'r-', 'b-'], last_no_of_points = self.no_of_points) 
+        
+        self.pressures_plot.plot(data, ['pressure', 'hornet_pressure'], self.sensors, ymin = 0.0, ymax = 10.0, colors = ['k-', 'r-', 'b-'], last_no_of_points = self.no_of_points) 
         
         self.pulsetube_he_plot.plot(data, ['he_temp', 'oil_temp'], self.sensors, ymin = 50.0, ymax = 180.0, colors = ['g-', 'k-'], last_no_of_points = self.no_of_points) 
         
@@ -68,7 +77,7 @@ class App(QWidget):
         
         self.pulsetube_curr_plot.plot(data, ['motor_current'], self.sensors, ymin = 0.0, ymax = 20.0, colors = ['k-'], last_no_of_points = self.no_of_points) 
         
-        self.chilled_water_plot.plot(data, ['temp'], self.sensors, ymin = 40.0, ymax = 80.0, conversion = lambda x : (120.10/10.0 * x) * 9.0/5.0 + 32.0, colors = ['b-'], last_no_of_points = self.no_of_points) 
+        self.chilled_water_plot.plot(data, ['temp'], self.sensors, ymin = 40.0, ymax = 80.0, colors = ['b-'], last_no_of_points = self.no_of_points) 
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -89,12 +98,14 @@ class App(QWidget):
 
         # plots
         self.main_plot = PlotCanvas(self, width=5, height=4)
+        self.main_4K_plot = PlotCanvas(self, width=5, height=4)
         self.pulsetube_he_plot = PlotCanvas(self, width=5, height=4)
         self.pulsetube_cool_plot = PlotCanvas(self, width=5, height=4)
         self.room_plot = PlotCanvas(self, width=5, height=4)
         self.pulsetube_press_plot = PlotCanvas(self, width=5, height=4)
         self.pulsetube_curr_plot = PlotCanvas(self, width=5, height=4)
         self.chilled_water_plot = PlotCanvas(self, width=5, height=4)
+        self.pressures_plot = PlotCanvas(self, width=5, height=4)
         
         # settings widgets
         self.update_interval_box = QLineEdit(str(self.update_interval))
@@ -102,6 +113,8 @@ class App(QWidget):
 
         self.tab_main.layout = QVBoxLayout()
         self.tab_main.layout.addWidget(self.main_plot)
+        self.tab_main.layout.addWidget(self.main_4K_plot)
+        self.tab_main.layout.addWidget(self.pressures_plot)
         self.tab_main.setLayout(self.tab_main.layout)
 
         self.tab_pulse.layout = QHBoxLayout()
@@ -147,7 +160,7 @@ class PlotCanvas(FigureCanvas):
         #self.plot(0,0)
  
  
-    def plot(self, data, sensors, sensor_config, ymin = 0, ymax = 300, colors = [], conversion = lambda y : y, fit_plot = None, last_no_of_points = 100):
+    def plot(self, data, sensors, sensor_config, ymin = 0, ymax = 300, colors = [], fit_plot = None, last_no_of_points = 100):
         
         self.axes.clear()
         legs = []
@@ -163,19 +176,24 @@ class PlotCanvas(FigureCanvas):
             x = x[ind]
             y = y[ind]
 
+            conversion = lambda x : eval(sensor_config[s]['conversion'])
+
             x = x[-last_no_of_points:]
             y = conversion(y[-last_no_of_points:])
 
             legs.append(data[s]['title'])
 
-            #print(len(x))
+            self.axes.plot(x, y, colors[n], label = sensor_config[s]['location'] + ': ' + '{0:{1}}{2}'.format(
+                y[-1], 
+                sensor_config[s]['format'],
+                sensor_config[s]['unit']))
 
-            self.axes.plot(x, y, colors[n], label = sensor_config[s]['location'] + ': ' + "{0:3.2f}{1}".format(y[-1], sensor_config[s]['unit']))
+            self.axes.set_yscale(sensor_config[s]['plot_scale'])
 
             #line = 
             #line.set_ydata(y)
             #self.axes.draw_artist(line)
-          
+         
         self.axes.set_ylim([ymin, ymax])
 
         self.axes.legend()

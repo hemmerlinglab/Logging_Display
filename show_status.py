@@ -77,8 +77,9 @@ class App(QWidget):
         self.tabs.addTab(self.tab_log, "Log")
 
         # gauge displays
-        self.pt_he_temp = AnalogGaugeWidget()
-        self.pt_current = AnalogGaugeWidget()
+        opts = {'min' : 10.0, 'max' : 20.0}
+        self.pt_he_temp = AnalogGaugeWidget(opts = opts)
+        self.pt_current = AnalogGaugeWidget(opts = opts)
 
         # settings widgets
         self.update_interval_box = QLineEdit(str(self.update_interval))

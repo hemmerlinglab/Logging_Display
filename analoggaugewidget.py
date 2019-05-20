@@ -81,7 +81,7 @@ class AnalogGaugeWidget(QWidget):
     """
     valueChanged = pyqtSignal(int)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent = None, opts = {}):
         super(AnalogGaugeWidget, self).__init__(parent)
 
         self.use_timer_event = False
@@ -114,8 +114,8 @@ class AnalogGaugeWidget(QWidget):
             QPoint(3, -120)
         ])])
 
-        self.value_min = 0
-        self.value_max = 1000
+        self.value_min = opts['min']
+        self.value_max = opts['max']
         self.value = self.value_min
         self.value_offset = 0
         self.value_needle_snapzone = 0.05
