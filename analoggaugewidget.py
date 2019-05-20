@@ -30,7 +30,7 @@ try:
     from PyQt4.QtGui import QWidget
     from PyQt4.QtGui import QApplication
     from PyQt4.QtGui import QPolygon, QPolygonF, QColor, QPen, QFont
-    from PyQt4.QtGui import QPainter, QFontMetrics, QConicalGradient
+    from PyQt4.QtGui import QPainter, QFontMetrics, QConicalGradient, QBrush
     # QtGui -> QPolygon, QPolygonF, QColor, QPen, QFont,
     #       -> QWidget
     #       -> QApplication
@@ -55,8 +55,8 @@ except:
         # QtWidgets -> QWidget
         # QtWidgets -> QApplication
 
-        from PyQt5.QtGui import QPolygon, QPolygonF, QColor, QPen, QFont
-        from PyQt5.QtGui import QPainter, QFontMetrics, QConicalGradient
+        from PyQt5.QtGui import QPolygon, QPolygonF, QColor, QPen, QFont, QPalette
+        from PyQt5.QtGui import QPainter, QFontMetrics, QConicalGradient, QBrush
         # QtGui -> QPolygon, QPolygonF, QColor, QPen, QFont, QPainter, QFontMetrics, QConicalGradient
 
         from PyQt5.QtCore import Qt ,QTime, QTimer, QPoint, QPointF, QRect, QSize
@@ -83,6 +83,15 @@ class AnalogGaugeWidget(QWidget):
 
     def __init__(self, parent = None, opts = {}):
         super(AnalogGaugeWidget, self).__init__(parent)
+
+        self.opts = opts
+
+        self.setAutoFillBackground(True)
+        self.palette = QPalette()
+        #self.palette.setColor(self.backgroundRole(), QColor(255, 0, 0, 50))
+        self.set_background_color()
+
+
 
         self.use_timer_event = False
         self.black = QColor(0, 0, 0, 255)
@@ -114,8 +123,8 @@ class AnalogGaugeWidget(QWidget):
             QPoint(3, -120)
         ])])
 
-        self.value_min = opts['min']
-        self.value_max = opts['max']
+        self.value_min = self.opts['plot_min']
+        self.value_max = self.opts['plot_max']
         self.value = self.value_min
         self.value_offset = 0
         self.value_needle_snapzone = 0.05
@@ -142,10 +151,17 @@ class AnalogGaugeWidget(QWidget):
         self.font = QFont('Decorative', 20)
 
         self.scale_polygon_colors = []
-        self.set_scale_polygon_colors([[.00, Qt.red],
-                                     [.1, Qt.yellow],
-                                     [.15, Qt.green],
-                                     [1, Qt.transparent]])
+        #self.set_scale_polygon_colors([[.00, Qt.red],
+        #                             [.1, Qt.yellow],
+        #                             [.15, Qt.green],
+        #                             [1, Qt.transparent]])
+        self.alert_high = (1.0 * self.opts['alert_high'] - self.opts['plot_min'])/(self.opts['plot_max'] - self.opts['plot_min'])
+        self.alert_low = (1.0 * self.opts['alert_low'] - self.opts['plot_min'])/(self.opts['plot_max'] - self.opts['plot_min'])
+
+        
+        self.set_scale_polygon_colors([
+            [.0, Qt.red], [self.alert_high, Qt.green], [self.alert_low, Qt.red], [1.0, Qt.red]
+            ])
 
         # initialize Scale value text
         # self.enable_scale_text = True
@@ -251,7 +267,8 @@ class AnalogGaugeWidget(QWidget):
         else:
             self.value = value
         # self.paintEvent("")
-        self.valueChanged.emit(int(value))
+        #self.valueChanged.emit(int(value))
+        self.valueChanged.emit(value)
         # print(self.value)
 
         # ohne timer: aktiviere self.update()
@@ -430,7 +447,7 @@ class AnalogGaugeWidget(QWidget):
             self.update()
 
     def set_scale_polygon_colors(self, color_array):
-        # print(type(color_array))
+        # print(type(color_array))        
         if 'list' in str(type(color_array)):
             self.scale_polygon_colors = color_array
         elif color_array == None:
@@ -518,15 +535,53 @@ class AnalogGaugeWidget(QWidget):
             # todo definition scale color as array here
             for eachcolor in self.scale_polygon_colors:
                 grad.setColorAt(eachcolor[0], eachcolor[1])
+            
             # grad.setColorAt(.00, Qt.red)
             # grad.setColorAt(.1, Qt.yellow)
             # grad.setColorAt(.15, Qt.green)
             # grad.setColorAt(1, Qt.transparent)
-            painter_filled_polygon.setBrush(grad)
-            # self.brush = QBrush(QColor(255, 0, 255, 255))
-            # painter_filled_polygon.setBrush(self.brush)
+
+            # use fancy gradient
+            #painter_filled_polygon.setBrush(grad)
+            
+            self.brush = QBrush(QColor(255, 0, 0, 255))
+            painter_filled_polygon.setBrush(self.brush)
+            
             painter_filled_polygon.drawPolygon(colored_scale_polygon)
+            
             # return painter_filled_polygon
+
+
+            ##########################
+            # draw only green area
+            ##########################
+
+            # self.scale_angle_size = total angle
+            # self.scale_angle_start_value = starting angle
+
+            my_start = self.scale_angle_start_value + self.alert_low * self.scale_angle_size
+            my_stop  = self.scale_angle_start_value + self.alert_high * self.scale_angle_size
+
+            green_polygon = self.create_polygon_pie(
+                ((self.widget_diameter / 2) - (self.pen.width() / 2)) * self.gauge_color_outer_radius_factor,
+                (((self.widget_diameter / 2) - (self.pen.width() / 2)) * self.gauge_color_inner_radius_factor),
+                int(my_start), int(my_stop - my_start))
+            
+            apainter_filled_polygon = QPainter(self)
+            apainter_filled_polygon.setRenderHint(QPainter.Antialiasing)
+            # Koordinatenursprung in die Mitte der Flaeche legen
+            apainter_filled_polygon.translate(self.width() / 2, self.height() / 2)
+
+            apainter_filled_polygon.setPen(Qt.NoPen)
+
+            self.pen.setWidth(outline_pen_with)
+            if outline_pen_with > 0:
+                apainter_filled_polygon.setPen(self.pen)
+
+            apainter_filled_polygon.setBrush(QBrush(QColor(0,255,0,255), Qt.SolidPattern))
+            apainter_filled_polygon.drawPolygon(green_polygon)
+
+
 
     ###############################################################################################
     # Scale Marker
@@ -628,10 +683,14 @@ class AnalogGaugeWidget(QWidget):
 
         # angle_distance = (float(self.scale_angle_size) / float(self.scala_main_count))
         # for i in range(self.scala_main_count + 1):
-        text = str(int(self.value))
+        #text = str(int(self.value))
+        
+        text = str(int(10.0 * self.value)/10.0) + self.opts['unit']
+        
         w = fm.width(text) + 1
         h = fm.height()
-        painter.setFont(QFont(self.value_fontname, self.value_fontsize))
+        painter.setFont(QFont(self.value_fontname, self.value_fontsize * 0.8))
+
 
         # Mitte zwischen Skalenstart und Skalenende:
         # Skalenende = Skalenanfang - 360 + Skalenlaenge
@@ -646,7 +705,102 @@ class AnalogGaugeWidget(QWidget):
         painter.drawText(text[0], text[1], text[2], text[3], text[4], text[5])
         # painter.restore()
 
-    def draw_big_needle_center_point(self, diameter=30):
+    def create_gauge_label(self):
+        painter = QPainter(self)
+        # painter.setRenderHint(QPainter.HighQualityAntialiasing)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Koordinatenursprung in die Mitte der Flaeche legen
+        painter.translate(self.width() / 2, self.height() / 2)
+        # painter.save()
+        # xShadow = 3.0
+        # yShadow = 3.0
+        font = QFont(self.value_fontname, self.value_fontsize)
+        fm = QFontMetrics(font)
+
+        pen_shadow = QPen()
+
+        pen_shadow.setBrush(self.DisplayValueColor)
+        painter.setPen(pen_shadow)
+
+        text_radius = self.widget_diameter / 2 * self.text_radius_factor
+
+        # angle_distance = (float(self.scale_angle_size) / float(self.scala_main_count))
+        # for i in range(self.scala_main_count + 1):
+        
+        text = self.opts['label']
+        
+        w = fm.width(text) + 1
+        h = fm.height()
+        painter.setFont(QFont(self.value_fontname, self.value_fontsize * 0.6))
+
+
+        # Mitte zwischen Skalenstart und Skalenende:
+        # Skalenende = Skalenanfang - 360 + Skalenlaenge
+        # Skalenmitte = (Skalenende - Skalenanfang) / 2 + Skalenanfang
+        angle_end = float(self.scale_angle_start_value + self.scale_angle_size - 360)
+        angle = (angle_end - self.scale_angle_start_value) / 2 + self.scale_angle_start_value
+
+        x = text_radius * math.cos(math.radians(angle))
+        y = text_radius * math.sin(math.radians(angle))
+        # print(w, h, x, y, text)
+        text = [x - int(w/2), y - int(h/2), int(w), - 1.5*int(h), Qt.AlignCenter, text]
+        painter.drawText(text[0], text[1], text[2], text[3], text[4], text[5])
+        # painter.restore()
+
+    def create_alert_label(self, my_text):
+        painter = QPainter(self)
+        # painter.setRenderHint(QPainter.HighQualityAntialiasing)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Koordinatenursprung in die Mitte der Flaeche legen
+        painter.translate(self.width() / 2, self.height() / 2)
+        # painter.save()
+        # xShadow = 3.0
+        # yShadow = 3.0
+        font = QFont(self.value_fontname, self.value_fontsize)
+        fm = QFontMetrics(font)
+
+        pen_shadow = QPen()
+
+        if my_text == 'High!':
+            pen_shadow.setBrush(QColor(255, 0, 0, 255))
+        elif my_text == 'Low!':
+            pen_shadow.setBrush(QColor(0, 0, 255, 255))
+        else:
+            pen_shadow.setBrush()
+        painter.setPen(pen_shadow)
+
+        text_radius = self.widget_diameter / 2 * self.text_radius_factor
+
+        # angle_distance = (float(self.scale_angle_size) / float(self.scala_main_count))
+        # for i in range(self.scala_main_count + 1):
+        
+        text = my_text
+        
+        w = fm.width(text) + 1
+        h = fm.height()
+        painter.setFont(QFont(self.value_fontname, self.value_fontsize * 0.6))
+
+
+        # Mitte zwischen Skalenstart und Skalenende:
+        # Skalenende = Skalenanfang - 360 + Skalenlaenge
+        # Skalenmitte = (Skalenende - Skalenanfang) / 2 + Skalenanfang
+        angle_end = float(self.scale_angle_start_value + self.scale_angle_size - 360)
+        angle = (angle_end - self.scale_angle_start_value) / 2 + self.scale_angle_start_value
+
+        x = text_radius * math.cos(math.radians(angle))
+        y = text_radius * math.sin(math.radians(angle))
+        # print(w, h, x, y, text)
+        text = [x - int(w/2), y - int(h/2), int(w), - 6.0*int(h), Qt.AlignCenter, text]
+        painter.drawText(text[0], text[1], text[2], text[3], text[4], text[5])
+        # painter.restore()
+
+    def set_background_color(self, my_color = QColor(0,0,0,0)): 
+        self.palette.setColor(self.backgroundRole(), my_color)
+        self.setPalette(self.palette)
+
+    def draw_big_needle_center_point(self, diameter=10):
         painter = QPainter(self)
         # painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -666,11 +820,31 @@ class AnalogGaugeWidget(QWidget):
         # Koordinatenursprung in die Mitte der Flaeche legen
         painter.translate(self.width() / 2, self.height() / 2)
         painter.setPen(Qt.NoPen)
+
+        check_bounds = self.check_inside_bounds()
+        if check_bounds == 1:
+            self.set_NeedleColor(R=255)
+        elif check_bounds == -1:
+            self.set_NeedleColor(B=255)
+        else:
+            self.set_NeedleColor()
         painter.setBrush(self.NeedleColor)
+
         painter.rotate(((self.value - self.value_offset - self.value_min) * self.scale_angle_size /
                         (self.value_max - self.value_min)) + 90 + self.scale_angle_start_value)
 
         painter.drawConvexPolygon(self.value_needle[0])
+
+    def check_inside_bounds(self):
+        # checks if sensor value is within bounds
+        if self.value > self.opts['alert_high']:
+            return +1
+        elif self.value < self.opts['alert_low']:
+            return -1
+        else:
+            return 0
+
+
 
     ###############################################################################################
     # Events
@@ -708,6 +882,18 @@ class AnalogGaugeWidget(QWidget):
         # Display Value
         if self.enable_value_text:
             self.create_values_text()
+            # print label of gauge
+            self.create_gauge_label()
+            
+            check_bounds = self.check_inside_bounds()
+            if check_bounds == +1:
+                self.create_alert_label('High!')
+                self.set_background_color(QColor(255,0,0,50))
+            elif check_bounds == -1:
+                self.create_alert_label('Low!')
+                self.set_background_color(QColor(0,0,255,50))
+            else:
+                self.set_background_color()
 
         # draw needle 1
         if self.enable_Needle_Polygon:
@@ -715,7 +901,7 @@ class AnalogGaugeWidget(QWidget):
 
         # Draw Center Point
         if self.enable_CenterPoint:
-            self.draw_big_needle_center_point(diameter=(self.widget_diameter / 6))
+            self.draw_big_needle_center_point(diameter=(self.widget_diameter / 10))
 
     ###############################################################################################
     # MouseEvents

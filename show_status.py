@@ -3,7 +3,7 @@
 ##################################
 
 import sys
-from PyQt5.QtWidgets import QLineEdit, QTabWidget, QSizePolicy, QTextEdit, QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QLineEdit, QTabWidget, QSizePolicy, QTextEdit, QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QPushButton, QHBoxLayout, QGridLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, QTimer
 import numpy as np
@@ -53,11 +53,41 @@ class App(QWidget):
         self.timer.start(self.update_interval)
 
     def tick(self):
-        #print("hallo")
+
         data = get_temperatures()
 
         self.no_of_points = int(self.no_of_points_to_plot_box.text())
 
+        self.pt_he_temp.update_value(np.float(data['he_temp']['y'][-1]))
+        self.pt_oil_temp.update_value(np.float(data['oil_temp']['y'][-1]))
+        self.pt_cool_in.update_value(np.float(data['cool_in']['y'][-1]))
+        self.pt_cool_out.update_value(np.float(data['cool_out']['y'][-1]))
+        self.pt_motor_current.update_value(np.float(data['motor_current']['y'][-1]))
+        self.pt_he_high_p.update_value(np.float(data['he_high_pressure']['y'][-1]))
+        self.pt_he_low_p.update_value(np.float(data['he_low_pressure']['y'][-1]))
+            
+        conversion = lambda x : eval(self.sensors['temp']['conversion'])
+        self.chilled_temp.update_value(conversion(np.float(data['temp']['y'][-1])))
+        
+        self.dewar_0.update_value(np.float(data['0']['y'][-1]))
+        self.dewar_1.update_value(np.float(data['1']['y'][-1]))
+        self.dewar_2.update_value(np.float(data['2']['y'][-1]))
+        self.dewar_3.update_value(np.float(data['3']['y'][-1]))
+
+    def get_settings(self, sensor):
+
+        opts = {}
+
+        opts['plot_min'] = np.float(self.sensors[sensor]['plot_min'])
+        opts['plot_max'] = np.float(self.sensors[sensor]['plot_max'])
+        opts['alert_low'] = np.float(self.sensors[sensor]['low'])
+        opts['alert_high'] = np.float(self.sensors[sensor]['high'])
+        opts['unit'] = self.sensors[sensor]['unit']
+        opts['name'] = sensor
+        opts['label'] = self.sensors[sensor]['label']
+
+        return opts
+    
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -77,17 +107,49 @@ class App(QWidget):
         self.tabs.addTab(self.tab_log, "Log")
 
         # gauge displays
-        opts = {'min' : 10.0, 'max' : 20.0}
-        self.pt_he_temp = AnalogGaugeWidget(opts = opts)
-        self.pt_current = AnalogGaugeWidget(opts = opts)
+        self.pt_cool_in = AnalogGaugeWidget(opts = self.get_settings('cool_in'))
+        self.pt_cool_out = AnalogGaugeWidget(opts = self.get_settings('cool_out'))
+        self.pt_oil_temp = AnalogGaugeWidget(opts = self.get_settings('oil_temp'))
+        self.pt_he_temp = AnalogGaugeWidget(opts = self.get_settings('he_temp'))
+        
+        self.pt_he_high_p = AnalogGaugeWidget(opts = self.get_settings('he_high_pressure'))
+        self.pt_he_low_p = AnalogGaugeWidget(opts = self.get_settings('he_low_pressure'))
+
+        self.pt_motor_current = AnalogGaugeWidget(opts = self.get_settings('motor_current'))
+        
+        self.chilled_temp = AnalogGaugeWidget(opts = self.get_settings('temp'))
+        
+        self.dewar_0 = AnalogGaugeWidget(opts = self.get_settings('0'))
+        self.dewar_1 = AnalogGaugeWidget(opts = self.get_settings('1'))
+        self.dewar_2 = AnalogGaugeWidget(opts = self.get_settings('2'))
+        self.dewar_3 = AnalogGaugeWidget(opts = self.get_settings('3'))
 
         # settings widgets
         self.update_interval_box = QLineEdit(str(self.update_interval))
         self.no_of_points_to_plot_box = QLineEdit(str(self.no_of_points))
 
-        self.tab_main.layout = QHBoxLayout()
-        self.tab_main.layout.addWidget(self.pt_he_temp)
-        self.tab_main.layout.addWidget(self.pt_current)
+        self.tab_main.layout = QGridLayout()
+        self.tab_main.layout.addWidget(self.pt_cool_in, 0,0)
+        self.tab_main.layout.addWidget(self.pt_cool_out, 0,1)
+        self.tab_main.layout.addWidget(self.pt_oil_temp, 0,2)
+        self.tab_main.layout.addWidget(self.pt_he_temp, 0,3)
+        self.tab_main.layout.addWidget(self.chilled_temp, 0,4)
+        
+        self.tab_main.layout.addWidget(self.pt_he_high_p, 1,0)
+        self.tab_main.layout.addWidget(self.pt_he_low_p, 1,1)
+
+        self.tab_main.layout.addWidget(self.pt_motor_current, 1,2)
+        
+        self.tab_main.layout.addWidget(self.dewar_0, 2,0)
+        self.tab_main.layout.addWidget(self.dewar_1, 2,1)
+        self.tab_main.layout.addWidget(self.dewar_2, 2,2)
+        self.tab_main.layout.addWidget(self.dewar_3, 2,3)
+
+        for k in range(3):
+            self.tab_main.layout.setRowMinimumHeight(k, 200)
+        for k in range(5):
+            self.tab_main.layout.setColumnMinimumWidth(k, 200)
+
         self.tab_main.setLayout(self.tab_main.layout)
 
         self.tab_pulse.layout = QHBoxLayout()
