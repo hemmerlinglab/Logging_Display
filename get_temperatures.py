@@ -76,6 +76,62 @@ def readin_data(main_path, filename, extension = '.log', unit = ''):
    
     return output
 
+def readin_chilled_data(main_path, filename, extension = '.log', unit = '', allowed_keys = []):
+    
+    # reads in csv file with data
+    # 2018/08/30-17:38:01,cool_in,74.267998,cool_out,73.693001,dc_power_status,1,he_high_pressure,224.000000,he_low_pressure,223.000000,he_temp,75.325996,motor_current,0.222085,msg,Ready To Start,msg_urgent,0,oil_temp,74.403000,three_phase_power,1
+    # 2018/08/30-17:39:01,cool_in,74.267998,cool_out,73.707001,dc_power_status,1,he_high_pressure,224.000000,he_low_pressure,224.000000,he_temp,75.334999,motor_current,0.234595,msg,Ready To Start,msg_urgent,0,oil_temp,74.412003,three_phase_power,1
+
+    compl_file = main_path + filename + extension
+    x = []
+    y = np.array([])
+
+    output = {} # dictionary for data on all sensors in the file
+    
+    if os.path.isfile(compl_file):
+        with open(compl_file, 'r') as f:
+           for line in f.readlines():
+               if not line.isspace():
+                   l = line[:-1].split(',') # line[:-1] chops off the \n at the end of the line
+                   hlp = l[0].split('-')[1]
+                   dat = l[0].split('-')[0].replace('/','-')
+                   hlp = list(hlp)
+                   
+                   hlp = [dat + 'T'] + hlp[0:] + ['.000000000-0000']
+
+                   # get time stamp
+                   x = "".join(hlp) # time stamp
+        
+                   # read in sensor data
+                   sensor_data = l[1:]
+        
+                   for k in range(0, len(sensor_data), 2):
+                        key = sensor_data[k]
+                        
+                        try:
+                            val = sensor_data[k+1].strip() # trim white spaces
+                        except:
+                            key = 'N/A'
+                            val = np.nan
+
+                        # check if key already exists
+                        if key in output:
+                            output[key]['x'].append(x)
+                            output[key]['y'].append(val)
+                        else:
+                            # check if key is an allowed key
+                            if key in allowed_keys:
+                                output[key] = {}
+                                output[key]['x'] = [x]
+                                output[key]['y'] = [val]
+                                output[key]['title'] = filename
+                        
+    else:
+        output = {}
+        print('File ' + compl_file + ' does not exist.')
+   
+    return output
+
 def readin_lab_temp_file(main_path, filename, extension = '.log', curr_weather = False):
     
     # reads in csv file with temperatures
@@ -167,7 +223,7 @@ def get_chilled_water(main_path = 'logging/PulseTube_Chilled_Water/', my_today =
     filename = my_today.strftime('%Y-%m-%d') + '_chilled_water_pulsetube'
 
     # read in data
-    data = readin_data(main_path, filename)
+    data = readin_chilled_data(main_path, filename, allowed_keys = ['temp','flow','pressure','hornet_pressure'])
 
     return data
 
@@ -193,6 +249,7 @@ def get_temperatures():
     # combine all data
     all_data = data[0].copy()
     for k in range(len(data)):
+        #print(all_data.keys())
         all_data.update(data[k])
 
     return (all_data)

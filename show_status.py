@@ -73,6 +73,10 @@ class App(QWidget):
         self.dewar_1.update_value(np.float(data['1']['y'][-1]))
         self.dewar_2.update_value(np.float(data['2']['y'][-1]))
         self.dewar_3.update_value(np.float(data['3']['y'][-1]))
+        self.dewar_4.update_value(np.float(data['4']['y'][-1]))
+        self.dewar_5.update_value(np.float(data['5']['y'][-1]))
+        self.dewar_6.update_value(np.float(data['6']['y'][-1]))
+        self.dewar_7.update_value(np.float(data['7']['y'][-1]))
 
     def get_settings(self, sensor):
 
@@ -123,6 +127,10 @@ class App(QWidget):
         self.dewar_1 = AnalogGaugeWidget(opts = self.get_settings('1'))
         self.dewar_2 = AnalogGaugeWidget(opts = self.get_settings('2'))
         self.dewar_3 = AnalogGaugeWidget(opts = self.get_settings('3'))
+        self.dewar_4 = AnalogGaugeWidget(opts = self.get_settings('4'))
+        self.dewar_5 = AnalogGaugeWidget(opts = self.get_settings('5'))
+        self.dewar_6 = AnalogGaugeWidget(opts = self.get_settings('6'))
+        self.dewar_7 = AnalogGaugeWidget(opts = self.get_settings('7'))
 
         # settings widgets
         self.update_interval_box = QLineEdit(str(self.update_interval))
@@ -144,8 +152,12 @@ class App(QWidget):
         self.tab_main.layout.addWidget(self.dewar_1, 2,1)
         self.tab_main.layout.addWidget(self.dewar_2, 2,2)
         self.tab_main.layout.addWidget(self.dewar_3, 2,3)
+        self.tab_main.layout.addWidget(self.dewar_4, 3,0)
+        self.tab_main.layout.addWidget(self.dewar_5, 3,1)
+        self.tab_main.layout.addWidget(self.dewar_6, 3,2)
+        self.tab_main.layout.addWidget(self.dewar_7, 3,3)
 
-        for k in range(3):
+        for k in range(4):
             self.tab_main.layout.setRowMinimumHeight(k, 200)
         for k in range(5):
             self.tab_main.layout.setColumnMinimumWidth(k, 200)
