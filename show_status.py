@@ -65,6 +65,11 @@ class App(QWidget):
         self.pt_motor_current.update_value(np.float(data['motor_current']['y'][-1]))
         self.pt_he_high_p.update_value(np.float(data['he_high_pressure']['y'][-1]))
         self.pt_he_low_p.update_value(np.float(data['he_low_pressure']['y'][-1]))
+        
+        self.pt_he_low_p.update_value(np.float(data['he_low_pressure']['y'][-1]))
+        self.pt_he_low_p.update_value(np.float(data['he_low_pressure']['y'][-1]))
+
+
             
         conversion = lambda x : eval(self.sensors['temp']['conversion'])
         self.chilled_temp.update_value(conversion(np.float(data['temp']['y'][-1])))
@@ -115,6 +120,10 @@ class App(QWidget):
         self.pt_cool_out = AnalogGaugeWidget(opts = self.get_settings('cool_out'))
         self.pt_oil_temp = AnalogGaugeWidget(opts = self.get_settings('oil_temp'))
         self.pt_he_temp = AnalogGaugeWidget(opts = self.get_settings('he_temp'))
+
+        self.pt_ucr_in = AnalogGaugeWidget(opts = self.get_settings('ucr_in'))
+        self.pt_ucr_out = AnalogGaugeWidget(opts = self.get_settings('ucr_out'))
+
         
         self.pt_he_high_p = AnalogGaugeWidget(opts = self.get_settings('he_high_pressure'))
         self.pt_he_low_p = AnalogGaugeWidget(opts = self.get_settings('he_low_pressure'))
@@ -147,6 +156,9 @@ class App(QWidget):
         self.tab_main.layout.addWidget(self.pt_he_low_p, 1,1)
 
         self.tab_main.layout.addWidget(self.pt_motor_current, 1,2)
+
+        self.tab_main.layout.addWidget(self.pt_ucr_in,1,3)
+        self.tab_main.layout.addWidget(self.pt_ucr_out,1,4)
         
         self.tab_main.layout.addWidget(self.dewar_0, 2,0)
         self.tab_main.layout.addWidget(self.dewar_1, 2,1)
