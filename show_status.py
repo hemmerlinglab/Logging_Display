@@ -44,7 +44,10 @@ class App(QWidget):
         self.update_interval = 1000 # ms
         self.no_of_points = 100
 
-        self.sensors = read_config()        
+        self.sensors = read_config()
+
+        # an array with all gauges
+        self.all_gauges = []
 
         self.initUI()        
 
@@ -58,30 +61,10 @@ class App(QWidget):
 
         self.no_of_points = int(self.no_of_points_to_plot_box.text())
 
-        self.pt_he_temp.update_value(np.float(data['he_temp']['y'][-1]))
-        self.pt_oil_temp.update_value(np.float(data['oil_temp']['y'][-1]))
-        self.pt_cool_in.update_value(np.float(data['cool_in']['y'][-1]))
-        self.pt_cool_out.update_value(np.float(data['cool_out']['y'][-1]))
-        self.pt_motor_current.update_value(np.float(data['motor_current']['y'][-1]))
-        self.pt_he_high_p.update_value(np.float(data['he_high_pressure']['y'][-1]))
-        self.pt_he_low_p.update_value(np.float(data['he_low_pressure']['y'][-1]))
-        
-        self.pt_he_low_p.update_value(np.float(data['he_low_pressure']['y'][-1]))
-        self.pt_he_low_p.update_value(np.float(data['he_low_pressure']['y'][-1]))
-
-
-            
-        conversion = lambda x : eval(self.sensors['temp']['conversion'])
-        self.chilled_temp.update_value(conversion(np.float(data['temp']['y'][-1])))
-        
-        self.dewar_0.update_value(np.float(data['0']['y'][-1]))
-        self.dewar_1.update_value(np.float(data['1']['y'][-1]))
-        self.dewar_2.update_value(np.float(data['2']['y'][-1]))
-        self.dewar_3.update_value(np.float(data['3']['y'][-1]))
-        self.dewar_4.update_value(np.float(data['4']['y'][-1]))
-        self.dewar_5.update_value(np.float(data['5']['y'][-1]))
-        self.dewar_6.update_value(np.float(data['6']['y'][-1]))
-        self.dewar_7.update_value(np.float(data['7']['y'][-1]))
+        # toggle through all gauges and update their values
+        for gauge in self.all_gauges:
+            conversion = lambda x : eval(self.sensors[gauge.sensor_name]['conversion'])
+            gauge.update_value(conversion(np.float(data[gauge.sensor_name]['y'][-1])))
 
     def get_settings(self, sensor):
 
@@ -121,8 +104,8 @@ class App(QWidget):
         self.pt_oil_temp = AnalogGaugeWidget(opts = self.get_settings('oil_temp'))
         self.pt_he_temp = AnalogGaugeWidget(opts = self.get_settings('he_temp'))
 
-        self.pt_ucr_in = AnalogGaugeWidget(opts = self.get_settings('ucr_in'))
-        self.pt_ucr_out = AnalogGaugeWidget(opts = self.get_settings('ucr_out'))
+        self.pt_ucr_in = AnalogGaugeWidget(opts = self.get_settings('UCR_in'))
+        self.pt_ucr_out = AnalogGaugeWidget(opts = self.get_settings('UCR_out'))
 
         
         self.pt_he_high_p = AnalogGaugeWidget(opts = self.get_settings('he_high_pressure'))
@@ -140,6 +123,28 @@ class App(QWidget):
         self.dewar_5 = AnalogGaugeWidget(opts = self.get_settings('5'))
         self.dewar_6 = AnalogGaugeWidget(opts = self.get_settings('6'))
         self.dewar_7 = AnalogGaugeWidget(opts = self.get_settings('7'))
+
+        # add all gauges in an array
+        self.all_gauges.extend([
+            self.pt_cool_in,
+            self.pt_cool_out,
+            self.pt_oil_temp,
+            self.pt_he_temp,
+            self.pt_ucr_in,
+            self.pt_ucr_out,
+            self.pt_he_high_p,
+            self.pt_he_low_p,    
+            self.pt_motor_current,
+            self.chilled_temp,        
+            self.dewar_0,
+            self.dewar_1,
+            self.dewar_2,
+            self.dewar_3,
+            self.dewar_4,
+            self.dewar_5,
+            self.dewar_6,
+            self.dewar_7
+            ])
 
         # settings widgets
         self.update_interval_box = QLineEdit(str(self.update_interval))

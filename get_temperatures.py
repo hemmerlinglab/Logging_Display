@@ -223,7 +223,7 @@ def get_chilled_water(main_path = 'logging/PulseTube_Chilled_Water/', my_today =
     filename = my_today.strftime('%Y-%m-%d') + '_chilled_water_pulsetube'
 
     # read in data
-    data = readin_chilled_data(main_path, filename, allowed_keys = ['temp','flow','pressure','hornet_pressure'])
+    data = readin_chilled_data(main_path, filename, allowed_keys = ['temp','flow','pressure','hornet_pressure','UCR_in','UCR_out'])
 
     return data
 

@@ -123,6 +123,7 @@ class AnalogGaugeWidget(QWidget):
             QPoint(3, -120)
         ])])
 
+        self.sensor_name = self.opts['name']
         self.value_min = self.opts['plot_min']
         self.value_max = self.opts['plot_max']
         self.value = self.value_min
