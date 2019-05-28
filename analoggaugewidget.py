@@ -89,6 +89,7 @@ class AnalogGaugeWidget(QWidget):
         self.setAutoFillBackground(True)
         self.palette = QPalette()
         #self.palette.setColor(self.backgroundRole(), QColor(255, 0, 0, 50))
+        
         self.set_background_color()
 
 
@@ -99,16 +100,16 @@ class AnalogGaugeWidget(QWidget):
         # self.valueColor = QColor(50, 50, 50, 255)
         # self.set_valueColor(50, 50, 50, 255)
         # self.NeedleColor = QColor(50, 50, 50, 255)
-        self.set_NeedleColor(50, 50, 50, 255)
+        self.set_NeedleColor(0, 0, 0, 255)
         self.NeedleColorReleased = self.NeedleColor
         # self.NeedleColorDrag = QColor(255, 0, 00, 255)
         self.set_NeedleColorDrag(255, 0, 00, 255)
 
-        self.set_ScaleValueColor(50, 50, 50, 255)
-        self.set_DisplayValueColor(50, 50, 50, 255)
+        self.set_ScaleValueColor(255, 255, 255, 255)
+        self.set_DisplayValueColor(255, 255, 255, 255)
 
         # self.CenterPointColor = QColor(50, 50, 50, 255)
-        self.set_CenterPointColor(50, 50, 50, 255)
+        self.set_CenterPointColor(0, 0, 0, 255)
 
         # self.valueColor = black
         # self.black = QColor(0, 0, 0, 255)
@@ -148,7 +149,7 @@ class AnalogGaugeWidget(QWidget):
         self.set_scala_main_count(10)
         self.scala_subdiv_count = 5
 
-        self.pen = QPen(QColor(0, 0, 0))
+        self.pen = QPen(QColor(255, 255, 255))
         self.font = QFont('Decorative', 20)
 
         self.scale_polygon_colors = []
@@ -212,6 +213,7 @@ class AnalogGaugeWidget(QWidget):
 
         # self.resize(300 , 300)
         self.rescale_method()
+        self.setPalette(self.palette)
 
 
 
@@ -292,7 +294,7 @@ class AnalogGaugeWidget(QWidget):
     ###############################################################################################
     # Set Methods
     ###############################################################################################
-    def set_NeedleColor(self, R=50, G=50, B=50, Transparency=255):
+    def set_NeedleColor(self, R=0, G=0, B=0, Transparency=255):
         # Red: R = 0 - 255
         # Green: G = 0 - 255
         # Blue: B = 0 - 255
@@ -303,7 +305,7 @@ class AnalogGaugeWidget(QWidget):
         if not self.use_timer_event:
             self.update()
 
-    def set_NeedleColorDrag(self, R=50, G=50, B=50, Transparency=255):
+    def set_NeedleColorDrag(self, R=0, G=0, B=0, Transparency=255):
         # Red: R = 0 - 255
         # Green: G = 0 - 255
         # Blue: B = 0 - 255
@@ -313,7 +315,7 @@ class AnalogGaugeWidget(QWidget):
         if not self.use_timer_event:
             self.update()
 
-    def set_ScaleValueColor(self, R=50, G=50, B=50, Transparency=255):
+    def set_ScaleValueColor(self, R=0, G=0, B=0, Transparency=255):
         # Red: R = 0 - 255
         # Green: G = 0 - 255
         # Blue: B = 0 - 255
@@ -323,7 +325,7 @@ class AnalogGaugeWidget(QWidget):
         if not self.use_timer_event:
             self.update()
 
-    def set_DisplayValueColor(self, R=50, G=50, B=50, Transparency=255):
+    def set_DisplayValueColor(self, R=0, G=0, B=0, Transparency=255):
         # Red: R = 0 - 255
         # Green: G = 0 - 255
         # Blue: B = 0 - 255
@@ -595,7 +597,7 @@ class AnalogGaugeWidget(QWidget):
         my_painter.translate(self.width() / 2, self.height() / 2)
 
         # my_painter.setPen(Qt.NoPen)
-        self.pen = QPen(QColor(0, 0, 0, 255))
+        self.pen = QPen(QColor(255, 255, 255, 255))
         self.pen.setWidth(2)
         # # if outline_pen_with > 0:
         my_painter.setPen(self.pen)

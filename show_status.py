@@ -4,8 +4,8 @@
 
 import sys
 from PyQt5.QtWidgets import QLineEdit, QTabWidget, QSizePolicy, QTextEdit, QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QPushButton, QHBoxLayout, QGridLayout
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.QtGui import QIcon, QPalette
+from PyQt5.QtCore import pyqtSlot, QTimer, Qt
 import numpy as np
 import scipy
 import datetime
@@ -192,7 +192,23 @@ class App(QWidget):
         self.layout = QHBoxLayout()
         self.layout.addWidget(self.tabs) 
         self.setLayout(self.layout) 
- 
+
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(53,53,53))
+        palette.setColor(QPalette.WindowText, Qt.white)
+        palette.setColor(QPalette.Base, QColor(15,15,15))
+        palette.setColor(QPalette.AlternateBase, QColor(53,53,53))
+        palette.setColor(QPalette.ToolTipBase, Qt.white)
+        palette.setColor(QPalette.ToolTipText, Qt.white)
+        palette.setColor(QPalette.Text, Qt.white)
+        palette.setColor(QPalette.Button, QColor(53,53,53))
+        palette.setColor(QPalette.ButtonText, Qt.white)
+        palette.setColor(QPalette.BrightText, Qt.red)
+             
+        palette.setColor(QPalette.Highlight, QColor(142,45,197).lighter())
+        palette.setColor(QPalette.HighlightedText, Qt.black)
+        self.setPalette(palette)
+     
         # Show widget
       
         self.show()
@@ -203,5 +219,6 @@ class App(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
+    
     sys.exit(app.exec_())
 
