@@ -65,6 +65,8 @@ class App(QWidget):
         for gauge in self.all_gauges:
             conversion = lambda x : eval(self.sensors[gauge.sensor_name]['conversion'])
             gauge.update_value(conversion(np.float(data[gauge.sensor_name]['y'][-1])))
+        
+        self.update()
 
     def get_settings(self, sensor):
 
