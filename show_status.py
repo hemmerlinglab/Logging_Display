@@ -130,6 +130,7 @@ class App(QWidget):
 
         
         self.rough_pressure = AnalogGaugeWidget(opts = self.get_settings('pressure'))
+        self.hornet_pressure = AnalogGaugeWidget(opts = self.get_settings('hornet_pressure'))
 
         # add all gauges in an array
         self.all_gauges.extend([
@@ -151,7 +152,8 @@ class App(QWidget):
             self.dewar_5,
             self.dewar_6,
             self.dewar_7,
-            self.rough_pressure
+            self.rough_pressure,
+            self.hornet_pressure
             ])
 
         # settings widgets
@@ -182,6 +184,7 @@ class App(QWidget):
         self.tab_main.layout.addWidget(self.dewar_7, 3,4)
 
         self.tab_main.layout.addWidget(self.rough_pressure,2,2)
+        self.tab_main.layout.addWidget(self.hornet_pressure,3,2)
 
         for k in range(4):
             self.tab_main.layout.setRowMinimumHeight(k, 200)
