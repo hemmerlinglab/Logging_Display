@@ -22,6 +22,7 @@
 ###
 
 import math
+import numpy as np
 
 try:
     # print("trying to import Qt4 @ analoggaugewidget.py")
@@ -688,7 +689,16 @@ class AnalogGaugeWidget(QWidget):
         # for i in range(self.scala_main_count + 1):
         #text = str(int(self.value))
         
-        text = str(int(10.0 * self.value)/10.0) + self.opts['unit']
+        label_conversion = lambda x : eval(self.opts['label_conversion'])
+
+        try:
+            my_val = label_conversion(self.value)
+            #text = str(int(10.0 * my_val)/10.0) + self.opts['unit']
+            text = "{1:{0}}".format(self.opts['format'],my_val) + self.opts['unit']
+        except:
+            my_val = 0.0
+            text = str(int(10.0 * my_val)/10.0) + self.opts['unit']
+
         
         w = fm.width(text) + 1
         h = fm.height()
