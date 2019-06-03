@@ -111,6 +111,8 @@ class App(QWidget):
         self.pt_ucr_in = AnalogGaugeWidget(opts = self.get_settings('UCR_in'))
         self.pt_ucr_out = AnalogGaugeWidget(opts = self.get_settings('UCR_out'))
 
+        self.pt_flow = AnalogGaugeWidget(opts=self.get_settings('flow'))
+
         
         self.pt_he_high_p = AnalogGaugeWidget(opts = self.get_settings('he_high_pressure'))
         self.pt_he_low_p = AnalogGaugeWidget(opts = self.get_settings('he_low_pressure'))
@@ -137,6 +139,7 @@ class App(QWidget):
             self.pt_cool_in,
             self.pt_cool_out,
             self.pt_oil_temp,
+            self.pt_flow,
             self.pt_he_temp,
             self.pt_ucr_in,
             self.pt_ucr_out,
@@ -167,6 +170,7 @@ class App(QWidget):
 
         self.tab_main.layout.addWidget(self.pt_cool_out, 0,1)
         self.tab_main.layout.addWidget(self.pt_ucr_out,1,1)
+        self.tab_main.layout.addWidget(self.pt_flow,2,1)
 
         self.tab_main.layout.addWidget(self.pt_oil_temp, 3,0)
         self.tab_main.layout.addWidget(self.pt_he_temp, 3,1)
