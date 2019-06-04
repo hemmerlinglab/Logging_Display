@@ -12,7 +12,9 @@ import datetime
 import fileinput
 from scipy.interpolate import interp1d
 
-
+import threading as thd
+import time
+from pygame import mixer
 
 
 #from matplotlib.backends.qt_compat import QtCore, QtWidgets, is_pyqt5
@@ -231,12 +233,26 @@ class App(QWidget):
       
         self.show()
 
+def main():
+    app = QApplication(sys.argv)
+    ex = App()
+    sys.exit(app.exec_())
 
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    
-    sys.exit(app.exec_())
+    main_thread = thd.Thread(target=main)
+    main_thread.start()
 
+    while True:
+        if not main_thread.is_alive():
+            break
+        else:
+            pass
+        time.sleep(5)
+
+    print('ERROR: GUI THREAD HAS CRASHED!!!')
+    mixer.init()
+    snd = mixer.Sound('siren.wav')
+    snd.play()
+    time.sleep(15)
