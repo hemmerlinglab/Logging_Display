@@ -22,7 +22,7 @@ from get_data import *
 
 def make_error_table(status_all):
 
-    my_str = '<html><table>'
+    my_str = '<table>'
     for k in np.sort(status_all.keys()):
         my_str += '<tr><td>' \
             + status_all[k]['label']  \

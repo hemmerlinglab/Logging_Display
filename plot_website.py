@@ -171,7 +171,8 @@ errtable = make_error_table(status_all)
 
 send_email(status_all)
 
-f = open('../status/index.html', 'w')
+os.system('cat html_base.html > ../status/index.html')
+f = open('../status/index.html', 'a')
 f.write(errtable)
 f.close()
 
