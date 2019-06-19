@@ -18,8 +18,8 @@ import fileinput
 
 from read_in_config import read_config
 from helper_functions import *
-
 from get_data import *
+from check_errors import *
 
 
 def make_plot(my_title, xarr, yarr, colorarr, legarr):
@@ -156,4 +156,16 @@ save(p)
 os.system('cat k0.html > index.html')
 os.system('echo "<hr>" >> index.html')
 
+
+# check errors
+
+status_all = check_errors(sensors, data)
+
+errtable = make_error_table(status_all)
+
+send_email(status_all)
+
+f = open('../status/index.html', 'w')
+f.write(errtable)
+f.close()
 

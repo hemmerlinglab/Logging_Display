@@ -2,5 +2,6 @@
 *.swo
 *.swp
 *.pyc
+*.log
 logging/
 __pycache__/
