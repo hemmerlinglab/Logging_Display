@@ -59,7 +59,7 @@ class App(QWidget):
 
     def tick(self):
 
-        data = get_temperatures()
+        data = get_data()
 
         self.no_of_points = int(self.no_of_points_to_plot_box.text())
 
