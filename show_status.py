@@ -26,7 +26,7 @@ from pygame import mixer
 #        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 #from matplotlib.figure import Figure
 
-from get_temperatures import *
+from get_data import *
 
 from read_in_config import read_config
 
