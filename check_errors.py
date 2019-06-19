@@ -20,10 +20,10 @@ from get_data import *
 
 def make_error_table(status_all):
 
-    my_str = '<html>'
+    my_str = '<html><table>'
     for k in status_all.keys():
         my_str += '<tr><th>' + status_all[k]['label'] + '</th>' + status_all[k]['val'] + '</th>' + status_all[k]['err'] + '</th></tr>'
-    my_str += '</html>'
+    my_str += '</table></html>'
 
     return my_str
 
