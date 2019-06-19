@@ -10,17 +10,11 @@ import datetime
 from time import mktime
 from scipy.interpolate import interp1d
 import fileinput
-from read_in_config import read_config
 
-def conv_dt_to_epoch(dt):
-    # dt is an array of datetimes
+from helper_functions import conv_dt_to_epoch
 
-    #2018-05-02T23:10:02.000000000-0000
-    dt2 = [datetime.datetime.strptime(m, '%Y-%m-%dT%H:%M:%S.000000000-0000') for m in dt]
-    
-    tarr = 1000.0 * np.array([mktime(m.timetuple()) + m.microsecond/1000.0 for m in dt2])
 
-    return tarr
+
 
 def readin_data(main_path, filename, extension = '.log', unit = ''):
     
@@ -240,20 +234,18 @@ def get_pulsetube(main_path = 'logging/PulseTube/', my_today = datetime.datetime
 
     return data
 
-
-def get_temperatures():
+def get_data(main_path = 'logging/', date = None):
 
     data = []
 
-    data.append(get_lab_temperatures())
-    data.append(get_dewar_temperatures())    
-    data.append(get_chilled_water())
-    data.append(get_pulsetube())
+    data.append(get_lab_temperatures(main_path = main_path + 'Temperatures_Lab/'))
+    data.append(get_dewar_temperatures(main_path = main_path + 'Dewar_Temperatures/'))    
+    data.append(get_chilled_water(main_path = main_path + 'PulseTube_Chilled_Water/'))
+    data.append(get_pulsetube(main_path = main_path + 'PulseTube/'))
 
     # combine all data
     all_data = data[0].copy()
     for k in range(len(data)):
-        #print(all_data.keys())
         all_data.update(data[k])
 
     return (all_data)

@@ -27,7 +27,7 @@ from matplotlib.backends.backend_qt5agg import (
 
 from matplotlib.figure import Figure
 
-from get_temperatures import *
+from get_data import *
 
 from read_in_config import read_config
 
@@ -56,7 +56,7 @@ class App(QWidget):
 
     def tick(self):
         #print("hallo")
-        data = get_temperatures()
+        data = get_data()
 
         self.no_of_points = int(self.no_of_points_to_plot_box.text())
 
