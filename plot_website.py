@@ -119,8 +119,8 @@ s3 = plot_fig(
 
 s4 = plot_fig(
         my_title = date + '- Chilled Water',
-        colorarr = ['red', 'blue', 'orange', 'green'],
-        sensorarr = ['temp', 'flow', 'UCR_in', 'UCR_out']
+        colorarr = ['red', 'orange', 'green'],
+        sensorarr = ['temp', 'UCR_in', 'UCR_out']
         )
 
 s5 = plot_fig(
@@ -135,9 +135,15 @@ s6 = plot_fig(
         sensorarr = ['0', '1', '2', '3']
         )
 
+s7 = plot_fig(
+        my_title = date + '- Chilled Water',
+        colorarr = ['blue'],
+        sensorarr = ['flow']
+        )
 
 
-p = gridplot([[s1, s2, s3], [s4, s5, s6]])
+
+p = gridplot([[s1, s2, s3, s7], [s4, s5, s6]])
 
 
 ## export as png
