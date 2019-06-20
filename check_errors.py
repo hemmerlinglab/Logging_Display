@@ -24,15 +24,16 @@ def make_error_table(status_all):
 
     my_str = '<table>'
     for k in np.sort(status_all.keys()):
-        my_str += '<tr><td>' \
-            + status_all[k]['label']  \
-            + '</td><td>' \
-            + status_all[k]['val'] \
-            + ' ' \
-            + status_all[k]['unit'] \
-            + '</td><td><font color="red">' \
-            + status_all[k]['err'] \
-            + '</font></td></tr>' \
+        if not k == 'has_error':
+            my_str += '<tr><td>' \
+                + status_all[k]['label']  \
+                + '</td><td>' \
+                + status_all[k]['val'] \
+                + ' ' \
+                + status_all[k]['unit'] \
+                + '</td><td><font color="red">' \
+                + status_all[k]['err'] \
+                + '</font></td></tr>' \
 
     my_str += '</table></html>'
 
@@ -44,6 +45,8 @@ def check_errors(sensors, data):
     # walk through all sensors and check if sensors are out of bound and updated
 
     status_all = {}
+    status_all['has_error'] = False
+
     for s in data.keys():
         if s in sensors.keys():            
             conversion = lambda x : eval(sensors[s]['conversion'])
@@ -54,17 +57,31 @@ def check_errors(sensors, data):
             min_val = np.float(sensors[s]['low'])
             max_val = np.float(sensors[s]['high'])
 
-
             status_all[s] = {}
             status_all[s]['label'] = sensors[s]['label']
             status_all[s]['val'] = "{1:{0}}".format(sensors[s]['format'], conversion(raw_val))
+            status_all[s]['last_time'] = data[s]['x'][-1]
             status_all[s]['unit'] = sensors[s]['unit']
             status_all[s]['err'] = ''
 
+           
+            # check if last_val is out of bounds
             if last_val <= min_val:
                 status_all[s]['err'] = 'Low (limit: ' + str(min_val) + ')'
+                status_all['has_error'] = True
             elif last_val >= max_val:
                 status_all[s]['err'] = 'High (limit: ' + str(max_val) + ')'
+                status_all['has_error'] = True
+
+            # check if latest time of data acquisition is not longer than 5 minutes ago
+            my_now = datetime.datetime.now()
+            time_of_last_datapoint = datetime.datetime.strptime(status_all[s]['last_time'], "%Y-%m-%dT%H:%M:%S.000000000-0000")
+            time_interval = 10*60.0
+
+            if my_now - time_of_last_datapoint > datetime.timedelta(0, time_interval):
+                status_all['has_error'] = True
+                status_all[s]['err'] = 'Logging stopped ' + str(time_interval/60.0) + ' min ago.'
+
 
     return status_all
 
@@ -74,7 +91,7 @@ def send_email(status):
 
     exists = os.path.isfile('error_msg.log')
 
-    if not exists:
+    if not exists and status['has_error']:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.ehlo()
         server.starttls()
@@ -84,22 +101,25 @@ def send_email(status):
     
         msg = ''
         for k in status.keys():
-            if len(status[k]['err'])>0:
-                msg +=  status[k]['label']  \
-                + ' - ' \
-                + status[k]['val'] \
-                + ' ' \
-                + status[k]['unit'] \
-                + ' - ' \
-                + status[k]['err'] \
-                + "\n"
+            if not k == 'has_error':
+                if len(status[k]['err'])>0:
+                    msg +=  status[k]['label'] \
+                        + ' - ' \
+                        + status[k]['val'] \
+                        + ' ' \
+                        + status[k]['unit'] \
+                        + ' - ' \
+                        + status[k]['err'] \
+                        + "\n"
     
         mytext = 'Subject: {}\n\n{}'.format('Sensor Alert', msg)
 
         email_recipients = "boergeh@ucr.edu,jdaniel4103@gmail.com,kaylajrox@gmail.com"
+        #email_recipients = "boergeh@ucr.edu"
 
         server.sendmail("lab", email_recipients.split(","), mytext)
     
+        print('Sending email')
         #  write file to stop the email alert
         f = open('error_msg.log', 'w')
         f.write(mytext)
