@@ -196,9 +196,9 @@ def readin_lab_temp_file(main_path, filename, extension = '.log', curr_weather =
     return output
 
 
-def get_lab_temperatures(main_path = 'logging/Temperatures_Lab/', my_today = datetime.datetime.today()):
+def get_lab_temperatures(main_path = 'logging/Temperatures_Lab/', my_today = None):
 
-    filename = my_today.strftime('%Y-%m-%d')
+    filename = my_today
 
     # read in data
     data = readin_lab_temp_file(main_path, filename)
@@ -207,41 +207,45 @@ def get_lab_temperatures(main_path = 'logging/Temperatures_Lab/', my_today = dat
     return (data)
 
 
-def get_dewar_temperatures(main_path = 'logging/Dewar_Temperatures/', my_today = datetime.datetime.today()):
+def get_dewar_temperatures(main_path = 'logging/Dewar_Temperatures/', my_today = None):
 
-    filename = my_today.strftime('%Y-%m-%d') + '_dewar'
+    filename = my_today + '_dewar'
 
     # read in data
     data = readin_data(main_path, filename)
 
     return data
 
-def get_chilled_water(main_path = 'logging/PulseTube_Chilled_Water/', my_today = datetime.datetime.today()):
+def get_chilled_water(main_path = 'logging/PulseTube_Chilled_Water/', my_today = None):
 
-    filename = my_today.strftime('%Y-%m-%d') + '_chilled_water_pulsetube'
+    filename = my_today + '_chilled_water_pulsetube'
 
     # read in data
     data = readin_chilled_data(main_path, filename, allowed_keys = ['temp','flow','pressure','hornet_pressure','UCR_in','UCR_out'])
 
     return data
 
-def get_pulsetube(main_path = 'logging/PulseTube/', my_today = datetime.datetime.today()):
+def get_pulsetube(main_path = 'logging/PulseTube/', my_today = None):
 
-    filename = my_today.strftime('%Y-%m-%d') + '_pulsetube'
+    filename = my_today + '_pulsetube'
 
     # read in data
     data = readin_data(main_path, filename)
 
     return data
 
-def get_data(main_path = 'logging/', date = None):
+def get_data(main_path = 'logging/', my_date = datetime.datetime.today().strftime('%Y-%m-%d')):
+    
+    # my_date has the format %Y-%m-%d
+
+
 
     data = []
 
-    data.append(get_lab_temperatures(main_path = main_path + 'Temperatures_Lab/'))
-    data.append(get_dewar_temperatures(main_path = main_path + 'Dewar_Temperatures/'))    
-    data.append(get_chilled_water(main_path = main_path + 'PulseTube_Chilled_Water/'))
-    data.append(get_pulsetube(main_path = main_path + 'PulseTube/'))
+    data.append(get_lab_temperatures(main_path = main_path + 'Temperatures_Lab/', my_today = my_date))
+    data.append(get_dewar_temperatures(main_path = main_path + 'Dewar_Temperatures/', my_today = my_date))    
+    data.append(get_chilled_water(main_path = main_path + 'PulseTube_Chilled_Water/', my_today = my_date))
+    data.append(get_pulsetube(main_path = main_path + 'PulseTube/', my_today = my_date))
 
     # combine all data
     all_data = data[0].copy()
