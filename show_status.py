@@ -180,14 +180,14 @@ class App(QWidget):
         self.tab_main.layout.addWidget(self.pt_he_high_p, 0,2)
         self.tab_main.layout.addWidget(self.pt_he_low_p, 1,2)
 
-        self.tab_main.layout.addWidget(self.dewar_0, 0,3)
+        self.tab_main.layout.addWidget(self.dewar_2, 0,3)
         self.tab_main.layout.addWidget(self.dewar_1, 1,3)
-        self.tab_main.layout.addWidget(self.dewar_2, 2,3)
+        self.tab_main.layout.addWidget(self.dewar_7, 2,3)
         self.tab_main.layout.addWidget(self.dewar_3, 3,3)
         self.tab_main.layout.addWidget(self.dewar_4, 0,4)
         self.tab_main.layout.addWidget(self.dewar_5, 1,4)
         self.tab_main.layout.addWidget(self.dewar_6, 2,4)
-        self.tab_main.layout.addWidget(self.dewar_7, 3,4)
+        self.tab_main.layout.addWidget(self.dewar_0, 3,4)
 
         self.tab_main.layout.addWidget(self.rough_pressure,2,2)
         self.tab_main.layout.addWidget(self.hornet_pressure,3,2)
