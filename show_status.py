@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 ##################################
 # Imports
 ##################################
@@ -37,7 +38,7 @@ class App(QWidget):
     def __init__(self):
         super().__init__()
         self.title = 'Logging Plots'
-        self.left = 0
+        self.left = 4000
         self.top = 0
         self.width = 1500
         self.height = 500
@@ -236,6 +237,7 @@ class App(QWidget):
 def main():
     app = QApplication(sys.argv)
     ex = App()
+    ex.showMaximized()
     sys.exit(app.exec_())
 
 
@@ -253,6 +255,7 @@ if __name__ == '__main__':
 
     print('ERROR: GUI THREAD HAS CRASHED!!!')
     mixer.init()
-    snd = mixer.Sound('siren.wav')
+    snd_file = '/home/molecules/software/Logging_Display/siren.wav'
+    snd = mixer.Sound(snd_file)
     snd.play()
     time.sleep(15)
