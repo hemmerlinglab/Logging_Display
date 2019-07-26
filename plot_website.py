@@ -132,7 +132,13 @@ s5 = plot_fig(
 s6 = plot_fig(
         my_title = date + '- Dewar Temperature',
         colorarr = ['blue', 'red', 'black', 'green'],
-        sensorarr = ['0', '1', '2', '3']
+        sensorarr = ['5', '6', '0', '1']
+        )
+
+s6_b = plot_fig(
+        my_title = date + '- Dewar Temperature',
+        colorarr = ['blue', 'red', 'black', 'green'],
+        sensorarr = ['4', '7', '3', '2']
         )
 
 s7 = plot_fig(
@@ -143,7 +149,7 @@ s7 = plot_fig(
 
 
 
-p = gridplot([[s1, s2, s3, s7], [s4, s5, s6]])
+p = gridplot([[s1, s2, s3, s7], [s4, s5, s6, s6_b]])
 
 
 ## export as png
