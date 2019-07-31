@@ -125,8 +125,8 @@ s4 = plot_fig(
 
 s5 = plot_fig(
         my_title = date + '- Pressures',
-        colorarr = ['red', 'black'],
-        sensorarr = ['pressure', 'hornet_pressure']
+        colorarr = ['red', 'black', 'blue'],
+        sensorarr = ['pressure', 'hornet_pressure', 'uhv']
         )
 
 s6 = plot_fig(
