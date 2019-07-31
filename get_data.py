@@ -196,7 +196,7 @@ def readin_lab_temp_file(main_path, filename, extension = '.log', curr_weather =
     return output
 
 
-def get_lab_temperatures(main_path = 'logging/Temperatures_Lab/', my_today = None):
+def get_lab_temperatures(main_path = '~/logging/Temperatures_Lab/', my_today = None):
 
     filename = my_today
 
@@ -207,7 +207,7 @@ def get_lab_temperatures(main_path = 'logging/Temperatures_Lab/', my_today = Non
     return (data)
 
 
-def get_dewar_temperatures(main_path = 'logging/Dewar_Temperatures/', my_today = None):
+def get_dewar_temperatures(main_path = '/home/molecules/logging/Dewar_Temperatures/', my_today = None):
 
     filename = my_today + '_dewar'
 
@@ -216,7 +216,7 @@ def get_dewar_temperatures(main_path = 'logging/Dewar_Temperatures/', my_today =
 
     return data
 
-def get_chilled_water(main_path = 'logging/PulseTube_Chilled_Water/', my_today = None):
+def get_chilled_water(main_path = '/home/molecules/logging/PulseTube_Chilled_Water/', my_today = None):
 
     filename = my_today + '_chilled_water_pulsetube'
 
@@ -225,7 +225,7 @@ def get_chilled_water(main_path = 'logging/PulseTube_Chilled_Water/', my_today =
 
     return data
 
-def get_pulsetube(main_path = 'logging/PulseTube/', my_today = None):
+def get_pulsetube(main_path = '/home/molecules/logging/PulseTube/', my_today = None):
 
     filename = my_today + '_pulsetube'
 
@@ -234,7 +234,7 @@ def get_pulsetube(main_path = 'logging/PulseTube/', my_today = None):
 
     return data
 
-def get_data(main_path = 'logging/', my_date = datetime.datetime.today().strftime('%Y-%m-%d')):
+def get_data(main_path = '/home/molecules/logging/', my_date = datetime.datetime.today().strftime('%Y-%m-%d')):
     
     # my_date has the format %Y-%m-%d
 

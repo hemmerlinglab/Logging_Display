@@ -136,7 +136,7 @@ class App(QWidget):
         
         self.rough_pressure = AnalogGaugeWidget(opts = self.get_settings('pressure'))
         self.hornet_pressure = AnalogGaugeWidget(opts = self.get_settings('hornet_pressure'))
-        self.uhv_pressure = AnalogGaugeWidget(opt = self.get_settings('uhv'))
+        self.uhv_pressure = AnalogGaugeWidget(opts = self.get_settings('uhv'))
 
         # add all gauges in an array
         self.all_gauges.extend([
@@ -160,7 +160,7 @@ class App(QWidget):
             self.dewar_6,
             self.dewar_7,
             self.rough_pressure,
-            self.hornet_pressure
+            self.hornet_pressure,
             self.uhv_pressure
             ])
 
