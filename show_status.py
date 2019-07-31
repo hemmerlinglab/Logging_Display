@@ -136,6 +136,7 @@ class App(QWidget):
         
         self.rough_pressure = AnalogGaugeWidget(opts = self.get_settings('pressure'))
         self.hornet_pressure = AnalogGaugeWidget(opts = self.get_settings('hornet_pressure'))
+        self.uhv_pressure = AnalogGaugeWidget(opt = self.get_settings('uhv'))
 
         # add all gauges in an array
         self.all_gauges.extend([
@@ -160,6 +161,7 @@ class App(QWidget):
             self.dewar_7,
             self.rough_pressure,
             self.hornet_pressure
+            self.uhv_pressure
             ])
 
         # settings widgets
@@ -174,9 +176,7 @@ class App(QWidget):
         self.tab_main.layout.addWidget(self.pt_cool_out, 0,1)
         self.tab_main.layout.addWidget(self.pt_ucr_out,1,1)
         self.tab_main.layout.addWidget(self.pt_flow,2,1)
-
-        self.tab_main.layout.addWidget(self.pt_oil_temp, 3,0)
-        self.tab_main.layout.addWidget(self.pt_he_temp, 3,1)
+        self.tab_main.layout.addWidget(self.pt_he_temp, 3,0)
         
         self.tab_main.layout.addWidget(self.pt_he_high_p, 0,2)
         self.tab_main.layout.addWidget(self.pt_he_low_p, 1,2)
@@ -192,6 +192,7 @@ class App(QWidget):
 
         self.tab_main.layout.addWidget(self.rough_pressure,2,2)
         self.tab_main.layout.addWidget(self.hornet_pressure,3,2)
+        self.tab_main.layout.addWidget(self.uhv_pressure, 3,1)
 
         for k in range(4):
             self.tab_main.layout.setRowMinimumHeight(k, 200)
@@ -204,6 +205,7 @@ class App(QWidget):
         self.tab_pulse.setLayout(self.tab_pulse.layout)
 
         self.tab_pulse.layout.addWidget(self.pt_motor_current)
+        self.tab_pulse.layout.addWidget(self.pt_oil_temp)
 
         self.tab_settings.layout = QVBoxLayout()
         self.tab_settings.layout.addWidget(self.update_interval_box)
