@@ -158,6 +158,7 @@ def readin_lab_temp_file(main_path, filename, extension = '.log', curr_weather =
            for line in f.readlines():
                if not line.isspace():
                    l = line.split(',')
+                   #print(l)
                    hlp = l[0].split('-')[1]
                    dat = l[0].split('-')[0].replace('/','-')
                    hlp = list(hlp)
@@ -237,7 +238,7 @@ def get_pulsetube(main_path = '/home/molecules/logging/PulseTube/', my_today = N
 def get_data(main_path = '/home/molecules/logging/', my_date = datetime.datetime.today().strftime('%Y-%m-%d')):
     
     # my_date has the format %Y-%m-%d
-
+    #print(my_date)
 
 
     data = []
