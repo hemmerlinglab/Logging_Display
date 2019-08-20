@@ -32,37 +32,40 @@ def readin_data(main_path, filename, extension = '.log', unit = ''):
         with open(compl_file, 'r') as f:
            for line in f.readlines():
                if not line.isspace():
-                   l = line[:-1].split(',') # line[:-1] chops off the \n at the end of the line
-                   hlp = l[0].split('-')[1]
-                   dat = l[0].split('-')[0].replace('/','-')
-                   hlp = list(hlp)
-                   
-                   hlp = [dat + 'T'] + hlp[0:] + ['.000000000-0000']
+                    l = line[:-1].split(',') # line[:-1] chops off the \n at the end of the line
+                    try:
+                       hlp = l[0].split('-')[1]
+                       dat = l[0].split('-')[0].replace('/','-')
+                       hlp = list(hlp)
+                       
+                       hlp = [dat + 'T'] + hlp[0:] + ['.000000000-0000']
 
-                   # get time stamp
-                   x = "".join(hlp) # time stamp
-        
-                   # read in sensor data
-                   sensor_data = l[1:]
-        
-                   for k in range(0, len(sensor_data), 2):
-                        key = sensor_data[k]
-                        
-                        try:
-                            val = sensor_data[k+1].strip() # trim white spaces
-                        except:
-                            key = 'N/A'
-                            val = np.nan
+                       # get time stamp
+                       x = "".join(hlp) # time stamp
+            
+                       # read in sensor data
+                       sensor_data = l[1:]
+            
+                       for k in range(0, len(sensor_data), 2):
+                            key = sensor_data[k]
+                            
+                            try:
+                                val = sensor_data[k+1].strip() # trim white spaces
+                            except:
+                                key = 'N/A'
+                                val = np.nan
 
-                        # check if key already exists
-                        if key in output:
-                            output[key]['x'].append(x)
-                            output[key]['y'].append(val)
-                        else:
-                            output[key] = {}
-                            output[key]['x'] = [x]
-                            output[key]['y'] = [val]
-                            output[key]['title'] = filename
+                            # check if key already exists
+                            if key in output:
+                                output[key]['x'].append(x)
+                                output[key]['y'].append(val)
+                            else:
+                                output[key] = {}
+                                output[key]['x'] = [x]
+                                output[key]['y'] = [val]
+                                output[key]['title'] = filename
+                    except:
+                        print('missing data point')
                         
     else:
         output = {}
