@@ -65,7 +65,7 @@ def readin_data(main_path, filename, extension = '.log', unit = ''):
                                 output[key]['y'] = [val]
                                 output[key]['title'] = filename
                     except:
-                        print('missing data point')
+                        print('bad data point')
                         
     else:
         output = {}

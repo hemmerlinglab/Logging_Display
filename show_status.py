@@ -4,7 +4,7 @@
 ##################################
 
 import sys
-from PyQt5.QtWidgets import QLineEdit, QTabWidget, QSizePolicy, QTextEdit, QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QPushButton, QHBoxLayout, QGridLayout
+from PyQt5.QtWidgets import QLabel, QLineEdit, QTabWidget, QSizePolicy, QTextEdit, QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout,QPushButton, QHBoxLayout, QGridLayout
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtCore import pyqtSlot, QTimer, Qt
 import numpy as np
@@ -38,10 +38,10 @@ class App(QWidget):
     def __init__(self):
         super().__init__()
         self.title = 'Logging Plots'
-        self.left = 4000
+        self.left = 3870
         self.top = 0
-        self.width = 1500
-        self.height = 500
+        self.width = 1700
+        self.height = 920
         self.no_of_rows = 20
 
         self.update_interval = 1000 # ms
@@ -61,6 +61,9 @@ class App(QWidget):
     def tick(self):
 
         data = get_data()
+        newtime = data['0']['x'][-1].split('T')[1].split('.')[0]
+
+        self.lasttime.setText(str(newtime))
 
         self.no_of_points = int(self.no_of_points_to_plot_box.text())
 
@@ -207,12 +210,19 @@ class App(QWidget):
         self.tab_pulse.layout.addWidget(self.pt_motor_current)
         self.tab_pulse.layout.addWidget(self.pt_oil_temp)
 
-        self.tab_settings.layout = QVBoxLayout()
-        self.tab_settings.layout.addWidget(self.update_interval_box)
-        self.tab_settings.layout.addWidget(self.no_of_points_to_plot_box)
+        self.tab_settings.layout = QGridLayout()
+        self.update_interval_label = QLabel('Update Interval')
+        self.tab_settings.layout.addWidget(self.update_interval_label,1,1)
+        self.tab_settings.layout.addWidget(self.update_interval_box,1,2)
+        self.no_points_label = QLabel('Number of Points to Plot')
+        self.tab_settings.layout.addWidget(self.no_points_label,2,1)
+        self.tab_settings.layout.addWidget(self.no_of_points_to_plot_box,2,2)
         self.tab_settings.setLayout(self.tab_settings.layout)
 
-        self.layout = QHBoxLayout()
+        self.lasttime = QLabel('NOW')
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.lasttime)
         self.layout.addWidget(self.tabs) 
         self.setLayout(self.layout) 
 
