@@ -64,6 +64,7 @@ class App(QWidget):
         newtime = data['0']['x'][-1].split('T')[1].split('.')[0]
 
         self.lasttime.setText(str(newtime))
+        self.nowtime.setText(time.strftime("%H:%M:%S",time.localtime()))
 
         self.no_of_points = int(self.no_of_points_to_plot_box.text())
 
@@ -219,10 +220,11 @@ class App(QWidget):
         self.tab_settings.layout.addWidget(self.no_of_points_to_plot_box,2,2)
         self.tab_settings.setLayout(self.tab_settings.layout)
 
-        self.lasttime_lab = QLabel('Last Read')
-        self.nowtime_lab = QLabel('Current Time')
+        self.lasttime_lab = QLabel('Last Read:')
+        self.nowtime_lab = QLabel('Current Time:')
         self.lasttime = QLabel('NOW')
         self.nowtime = QLabel(time.strftime("%H:%M:%S",time.localtime()))
+        self.blank_lab = QLabel(' '*40)
 
         self.layout = QVBoxLayout()
         self.times = QWidget()
@@ -231,6 +233,7 @@ class App(QWidget):
         self.time_lay.addWidget(self.nowtime)
         self.time_lay.addWidget(self.lasttime_lab)
         self.time_lay.addWidget(self.lasttime)
+        self.time_lay.addWidget(self.blank_lab)
         self.times.setLayout(self.time_lay)
         self.layout.addWidget(self.times)
         self.layout.addWidget(self.tabs) 
