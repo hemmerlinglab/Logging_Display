@@ -131,14 +131,14 @@ s5 = plot_fig(
 
 s6 = plot_fig(
         my_title = date + '- Dewar Temperature',
-        colorarr = ['blue', 'red', 'black', 'green'],
-        sensorarr = ['5', '6', '0', '1']
+        colorarr = ['blue', 'red', 'black'],
+        sensorarr = ['5', '6', '0']
         )
 
 s6_b = plot_fig(
         my_title = date + '- Dewar Temperature',
-        colorarr = ['blue', 'red', 'black', 'green'],
-        sensorarr = ['4', '7', '3', '2']
+        colorarr = ['yellow', 'blue', 'red', 'black', 'green'],
+        sensorarr = ['1', '4', '7', '3', '2']
         )
 
 s7 = plot_fig(
