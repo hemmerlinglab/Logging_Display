@@ -69,13 +69,14 @@ def check_errors(sensors, data):
             # the 'invalid_values' key contains a list of ranges which are declared invalid
             # sensors[s]['invalid_values'] = [[-2.0, 1.0], [-5.0, -3.0]]
 
-            skip_error_check = False
-            for inv_interval in senors[s]['invalid_values']:
-                low = inv_interval[0]
-                high = inv_interval[1]
-
-                if (last_val >= low) and (last_val <= high):
-                    skip_error_check = True
+            if len(sensors[s]['invalid_values'])>0:
+                skip_error_check = False
+                for inv_interval in sensors[s]['invalid_values']:
+                    low = inv_interval[0]
+                    high = inv_interval[1]
+    
+                    if (last_val >= low) and (last_val <= high):
+                        skip_error_check = True
                     
             if skip_error_check == False:
                 # check if last_val is out of bounds

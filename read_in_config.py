@@ -1,5 +1,5 @@
 from configparser import ConfigParser
-
+import ast
 
 def read_config(filename = 'config.ini'):
     
@@ -35,6 +35,8 @@ def read_config(filename = 'config.ini'):
             sensors[s]['label_conversion'] = sensors[s]['conversion']
         if not 'invalid_values' in sensors[s]:
             sensors[s]['invalid_values'] = []
+        else:
+            sensors[s]['invalid_values'] = ast.literal_eval(sensors[s]['invalid_values']) # necessary to convert a string [[1,2],[3,4]] to a list
 
     return sensors
 
