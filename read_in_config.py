@@ -33,7 +33,8 @@ def read_config(filename = 'config.ini'):
             sensors[s]['label'] = s
         if not 'label_conversion' in sensors[s]:
             sensors[s]['label_conversion'] = sensors[s]['conversion']
-
+        if not 'invalid_values' in sensors[s]:
+            sensors[s]['invalid_values'] = []
 
     return sensors
 

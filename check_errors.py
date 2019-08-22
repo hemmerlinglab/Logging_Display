@@ -64,14 +64,27 @@ def check_errors(sensors, data):
             status_all[s]['unit'] = sensors[s]['unit']
             status_all[s]['err'] = ''
 
-           
-            # check if last_val is out of bounds
-            if last_val <= min_val:
-                status_all[s]['err'] = 'Low (limit: ' + str(min_val) + ')'
-                status_all['has_error'] = True
-            elif last_val >= max_val:
-                status_all[s]['err'] = 'High (limit: ' + str(max_val) + ')'
-                status_all['has_error'] = True
+
+            # check if value is valid, only then check if its out of bounds
+            # the 'invalid_values' key contains a list of ranges which are declared invalid
+            # sensors[s]['invalid_values'] = [[-2.0, 1.0], [-5.0, -3.0]]
+
+            skip_error_check = False
+            for inv_interval in senors[s]['invalid_values']:
+                low = inv_interval[0]
+                high = inv_interval[1]
+
+                if (last_val >= low) and (last_val <= high):
+                    skip_error_check = True
+                    
+            if skip_error_check == False:
+                # check if last_val is out of bounds
+                if last_val <= min_val:
+                    status_all[s]['err'] = 'Low (limit: ' + str(min_val) + ')'
+                    status_all['has_error'] = True
+                elif last_val >= max_val:
+                    status_all[s]['err'] = 'High (limit: ' + str(max_val) + ')'
+                    status_all['has_error'] = True
 
             # check if latest time of data acquisition is not longer than 5 minutes ago
             my_now = datetime.datetime.now()
@@ -81,7 +94,6 @@ def check_errors(sensors, data):
             if my_now - time_of_last_datapoint > datetime.timedelta(0, time_interval):
                 status_all['has_error'] = True
                 status_all[s]['err'] = 'Logging stopped ' + str(time_interval/60.0) + ' min ago.'
-
 
     return status_all
 
