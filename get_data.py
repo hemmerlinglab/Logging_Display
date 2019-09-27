@@ -37,7 +37,7 @@ def readin_data(main_path, filename, extension = '.log', unit = ''):
                        hlp = l[0].split('-')[1]
                        dat = l[0].split('-')[0].replace('/','-')
                        hlp = list(hlp)
-                       
+
                        hlp = [dat + 'T'] + hlp[0:] + ['.000000000-0000']
 
                        # get time stamp

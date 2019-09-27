@@ -60,8 +60,8 @@ class App(QWidget):
 
     def tick(self):
 
-        data = get_data()
-        newtime = data['0']['x'][-1].split('T')[1].split('.')[0]
+        data = get_data('/home/molecules/skynet/Logs/')
+        newtime = data['he_temp']['x'][-1].split('T')[1].split('.')[0]
 
         self.lasttime.setText(str(newtime))
         self.nowtime.setText(time.strftime("%H:%M:%S",time.localtime()))
