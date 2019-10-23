@@ -22,6 +22,23 @@ from get_data import *
 from check_errors import *
 
 
+def replace_invalid_values(arr, sensor):
+
+    # this function replaces all values which are invalid with np.nan
+    # e.g. sensor['invalid_values'] = [[1.0e2, 1.0e7]]
+
+    # check if invalid values are given
+    for inv_interval in sensor['invalid_values']:
+
+        low = inv_interval[0]
+        high = inv_interval[1]
+
+        # check if values are inside the invalid values interval
+        arr[(arr > low) & (arr < high)] = np.nan
+
+    return arr
+
+
 def make_plot(my_title, xarr, yarr, colorarr, legarr):
         s = figure(
              width = 450, 
@@ -70,9 +87,13 @@ def plot_fig(
 
         xd = np.array(x, dtype = np.datetime64)
 
+        # sort x, y data
         ind = np.argsort(xd)
         xd = xd[ind]
         y = y[ind]
+
+        # replace invalid values
+        y = replace_invalid_values(y, sensors[key])
 
         last_value = " ({1:{0}} {2})".format(sensors[key]['format'], label_conversion(y[-1]), sensors[key]['unit'])
 
