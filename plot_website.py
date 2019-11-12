@@ -12,6 +12,7 @@ from bokeh.plotting import figure, show, output_file, save, gridplot
 from bokeh.models import Range1d, LinearAxis, Span, Label
 from bokeh.io import export_png
 import datetime
+from datetime import timedelta
 from time import mktime
 from scipy.interpolate import interp1d
 import fileinput
@@ -60,6 +61,7 @@ def make_plot(my_title, xarr, yarr, colorarr, legarr):
 
 
 def plot_fig(
+        data,
         my_title = '',
         colorarr = [],
         sensorarr = []
@@ -104,6 +106,66 @@ def plot_fig(
     return make_plot(my_title, xarr, yarr, colorarr, legendarr)
 
 
+def get_plots(data, date):
+    s1 = plot_fig(
+            data,
+            my_title = date + '- PulseTube',
+            colorarr = ['blue', 'red', 'orange', 'green'],
+            sensorarr = ['cool_in', 'cool_out', 'oil_temp', 'he_temp']
+            )
+    
+    s2 = plot_fig(
+            data,
+            my_title = date + '- PulseTube',
+            colorarr = ['red','blue'],
+            sensorarr = ['he_high_pressure', 'he_low_pressure']
+            )
+    
+    s3 = plot_fig(
+            data,
+            my_title = date + '- PulseTube',
+            colorarr = ['black'],
+            sensorarr = ['motor_current']
+            )
+    
+    s4 = plot_fig(
+            data,
+            my_title = date + '- Chilled Water',
+            colorarr = ['red', 'orange', 'green'],
+            sensorarr = ['temp', 'UCR_in', 'UCR_out']
+            )
+    
+    s5 = plot_fig(
+            data,
+            my_title = date + '- Pressures',
+            colorarr = ['red', 'black', 'blue'],
+            sensorarr = ['pressure', 'hornet_pressure', 'uhv']
+            )
+    
+    s6 = plot_fig(
+            data,
+            my_title = date + '- Dewar Temperature',
+            colorarr = ['blue', 'red', 'black'],
+            sensorarr = ['5', '6', '0']
+            )
+    
+    s6_b = plot_fig(
+            data,
+            my_title = date + '- Dewar Temperature',
+            colorarr = ['yellow', 'blue', 'red', 'black', 'green'],
+            sensorarr = ['1', '4', '7', '3', '2']
+            )
+    
+    s7 = plot_fig(
+            data,
+            my_title = date + '- Chilled Water',
+            colorarr = ['blue'],
+            sensorarr = ['flow']
+            )
+    
+    return gridplot([[s1, s2, s3, s7], [s4, s5, s6, s6_b]])
+
+
 
 
 ####################################
@@ -115,63 +177,16 @@ sensors = read_config()
 # get today's date
 my_today = datetime.datetime.today()
 today = str(my_today.strftime('%Y-%m-%d'))
+yesterday = str((my_today - timedelta(1)).strftime('%Y-%m-%d'))
 
 date = today
+
 # get all data
-data = get_data(main_path = '/home/lab-user/Lab/Group/Logs/')
+data = get_data(main_path = '/home/lab-user/Lab/Group/Logs/', my_date = today)
+data_yesterday = get_data(main_path = '/home/lab-user/Lab/Group/Logs/', my_date = yesterday)
 
-s1 = plot_fig(
-        my_title = date + '- PulseTube',
-        colorarr = ['blue', 'red', 'orange', 'green'],
-        sensorarr = ['cool_in', 'cool_out', 'oil_temp', 'he_temp']
-        )
-
-s2 = plot_fig(
-        my_title = date + '- PulseTube',
-        colorarr = ['red','blue'],
-        sensorarr = ['he_high_pressure', 'he_low_pressure']
-        )
-
-s3 = plot_fig(
-        my_title = date + '- PulseTube',
-        colorarr = ['black'],
-        sensorarr = ['motor_current']
-        )
-
-s4 = plot_fig(
-        my_title = date + '- Chilled Water',
-        colorarr = ['red', 'orange', 'green'],
-        sensorarr = ['temp', 'UCR_in', 'UCR_out']
-        )
-
-s5 = plot_fig(
-        my_title = date + '- Pressures',
-        colorarr = ['red', 'black', 'blue'],
-        sensorarr = ['pressure', 'hornet_pressure', 'uhv']
-        )
-
-s6 = plot_fig(
-        my_title = date + '- Dewar Temperature',
-        colorarr = ['blue', 'red', 'black'],
-        sensorarr = ['5', '6', '0']
-        )
-
-s6_b = plot_fig(
-        my_title = date + '- Dewar Temperature',
-        colorarr = ['yellow', 'blue', 'red', 'black', 'green'],
-        sensorarr = ['1', '4', '7', '3', '2']
-        )
-
-s7 = plot_fig(
-        my_title = date + '- Chilled Water',
-        colorarr = ['blue'],
-        sensorarr = ['flow']
-        )
-
-
-
-p = gridplot([[s1, s2, s3, s7], [s4, s5, s6, s6_b]])
-
+p = get_plots(data, today)
+p_yesterday = get_plots(data_yesterday, yesterday)
 
 ## export as png
 ##output_file('k0.html')
@@ -180,13 +195,16 @@ p = gridplot([[s1, s2, s3, s7], [s4, s5, s6, s6_b]])
 ##os.system('cat k0.html > index.html')
 #os.system('echo "<img src="fig0.png"></img><hr>" > index.html')
 
-
-
 # export as actual plot
 output_file('k0.html')
 save(p)
 
+output_file('k1.html')
+save(p_yesterday)
+
+
 os.system('cat k0.html > index.html')
+os.system('cat k1.html >> index.html')
 os.system('echo "<hr>" >> index.html')
 
 
