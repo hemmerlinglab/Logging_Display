@@ -71,33 +71,39 @@ def plot_fig(
     yarr = []
     legendarr = []
     for key in sensorarr:
-        x = data[key]['x']
+        
+        if key in data.keys():
+            x = data[key]['x']
 
-        # conversion from raw data to plot value
-        conversion = lambda x : eval(sensors[key]['conversion'])
-        label_conversion = lambda x : eval(sensors[key]['label_conversion'])
+            # conversion from raw data to plot value
+            conversion = lambda x : eval(sensors[key]['conversion'])
+            label_conversion = lambda x : eval(sensors[key]['label_conversion'])
 
-        # if there is an issue, try to transform each element individually
-        y = []
-        for n in range(len(data[key]['y'])):
-            try:
-                y.append(conversion(np.float64(data[key]['y'][n])))
-            except:
-                y.append(np.nan)
+            # if there is an issue, try to transform each element individually
+            y = []
+            for n in range(len(data[key]['y'])):
+                try:
+                    y.append(conversion(np.float64(data[key]['y'][n])))
+                except:
+                    y.append(np.nan)
 
-        y = np.array(y)
+            y = np.array(y)
 
-        xd = np.array(x, dtype = np.datetime64)
+            xd = np.array(x, dtype = np.datetime64)
 
-        # sort x, y data
-        ind = np.argsort(xd)
-        xd = xd[ind]
-        y = y[ind]
+            # sort x, y data
+            ind = np.argsort(xd)
+            xd = xd[ind]
+            y = y[ind]
 
-        # replace invalid values
-        y = replace_invalid_values(y, sensors[key])
+            # replace invalid values
+            y = replace_invalid_values(y, sensors[key])
 
-        last_value = " ({1:{0}} {2})".format(sensors[key]['format'], label_conversion(y[-1]), sensors[key]['unit'])
+            last_value = " ({1:{0}} {2})".format(sensors[key]['format'], label_conversion(y[-1]), sensors[key]['unit'])
+        else:
+            xd = []
+            y = []
+            last_value = " (nan)"
 
         xarr.append(xd)
         yarr.append(y)
