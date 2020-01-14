@@ -61,7 +61,9 @@ class App(QWidget):
     def tick(self):
 
         data = get_data('/home/molecules/skynet/Logs/')
-        newtime = data['he_temp']['x'][-1].split('T')[1].split('.')[0]
+        # take time from first key
+        my_keys = list(data.keys())
+        newtime = data[my_keys[0]]['x'][-1].split('T')[1].split('.')[0]
 
         self.lasttime.setText(str(newtime))
         self.nowtime.setText(time.strftime("%H:%M:%S",time.localtime()))
@@ -70,8 +72,11 @@ class App(QWidget):
 
         # toggle through all gauges and update their values
         for gauge in self.all_gauges:
-            conversion = lambda x : eval(self.sensors[gauge.sensor_name]['conversion'])
-            gauge.update_value(conversion(np.float(data[gauge.sensor_name]['y'][-1])))
+            try:
+                conversion = lambda x : eval(self.sensors[gauge.sensor_name]['conversion'])
+                gauge.update_value(conversion(np.float(data[gauge.sensor_name]['y'][-1])))
+            except:
+                print("Can't find value for " + str(gauge.sensor_name))
         
         self.update()
 
