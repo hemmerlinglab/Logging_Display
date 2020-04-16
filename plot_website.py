@@ -40,7 +40,7 @@ def replace_invalid_values(arr, sensor):
     return arr
 
 
-def make_plot(my_title, xarr, yarr, colorarr, legarr):
+def make_plot(my_title, xarr, yarr, colorarr, legarr, limits_arr):
         s = figure(
              width = 450, 
              height = 350, 
@@ -55,6 +55,10 @@ def make_plot(my_title, xarr, yarr, colorarr, legarr):
         for k in range(len(xarr)):
             s.line(xarr[k], yarr[k], color = colorarr[k], legend = legarr[k])
 
+            if len(limits_arr[k])==2:
+                s.renderers.extend([Span(location=limits_arr[k][0], dimension='width', line_dash = 'dashdot', line_color=colorarr[k], line_width=1)])
+                s.renderers.extend([Span(location=limits_arr[k][1], dimension='width', line_dash = 'dashed', line_color=colorarr[k], line_width=1)])
+
         s.legend.location = 'top_left'
               
         return s
@@ -64,12 +68,14 @@ def plot_fig(
         data,
         my_title = '',
         colorarr = [],
-        sensorarr = []
+        sensorarr = [],
+        limit_lines = False
         ):
 
     xarr = []
     yarr = []
     legendarr = []
+    limit_lines_arr = []
     for key in sensorarr:
         
         if key in data.keys():
@@ -108,8 +114,12 @@ def plot_fig(
         xarr.append(xd)
         yarr.append(y)
         legendarr.append(sensors[key]['label'] + last_value)
+        if limit_lines:
+            limit_lines_arr.append([np.float(sensors[key]['low']), np.float(sensors[key]['high'])])
+        else:
+            limit_lines_arr.append([])
 
-    return make_plot(my_title, xarr, yarr, colorarr, legendarr)
+    return make_plot(my_title, xarr, yarr, colorarr, legendarr, limit_lines_arr)
 
 
 def get_plots(data, date):
@@ -117,14 +127,16 @@ def get_plots(data, date):
             data,
             my_title = date + '- PulseTube',
             colorarr = ['blue', 'red', 'orange', 'green'],
-            sensorarr = ['cool_in', 'cool_out', 'oil_temp', 'he_temp']
+            sensorarr = ['cool_in', 'cool_out', 'oil_temp', 'he_temp'],
+            limit_lines = True
             )
     
     s2 = plot_fig(
             data,
             my_title = date + '- PulseTube',
             colorarr = ['red','blue'],
-            sensorarr = ['he_high_pressure', 'he_low_pressure']
+            sensorarr = ['he_high_pressure', 'he_low_pressure'],
+            limit_lines = True
             )
     
     s3 = plot_fig(

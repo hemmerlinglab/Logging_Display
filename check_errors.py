@@ -127,7 +127,8 @@ def send_email(status):
     
         mytext = 'Subject: {}\n\n{}'.format('Sensor Alert', msg)
 
-        email_recipients = "boergeh@ucr.edu,jdaniel4103@gmail.com,kaylajrox@gmail.com"
+        #email_recipients = "boergeh@ucr.edu,jdaniel4103@gmail.com,kaylajrox@gmail.com"
+        email_recipients = "boergeh@ucr.edu,jdaniel4103@gmail.com"#,kaylajrox@gmail.com"
         #email_recipients = "boergeh@ucr.edu"
 
         server.sendmail("lab", email_recipients.split(","), mytext)
