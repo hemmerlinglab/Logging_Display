@@ -52,6 +52,7 @@ def check_errors(sensors, data):
             conversion = lambda x : eval(sensors[s]['conversion'])
             label_conversion = lambda x : eval(sensors[s]['label_conversion'])
             
+            #print(data[s]['y'][-1])
             raw_val = np.float(data[s]['y'][-1])
             last_val = conversion(raw_val)
             min_val = np.float(sensors[s]['low'])
@@ -96,15 +97,18 @@ def check_errors(sensors, data):
                 status_all['has_error'] = True
                 status_all[s]['err'] = 'Logging stopped ' + str(time_interval/60.0) + ' min ago.'
 
+    # check if the dewar is hot or cold
+
+
     return status_all
 
-def send_email(status):
+def send_email(status, override = False):
 
     # check if token file exists. if exists, don't send email
 
     exists = os.path.isfile('error_msg.log')
 
-    if not exists and status['has_error']:
+    if (not exists and status['has_error']) or (override == True):
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.ehlo()
         server.starttls()
@@ -127,9 +131,9 @@ def send_email(status):
     
         mytext = 'Subject: {}\n\n{}'.format('Sensor Alert', msg)
 
-        #email_recipients = "boergeh@ucr.edu,jdaniel4103@gmail.com,kaylajrox@gmail.com"
-        email_recipients = "boergeh@ucr.edu,jdaniel4103@gmail.com"#,kaylajrox@gmail.com"
-        #email_recipients = "boergeh@ucr.edu"
+        email_recipients = "boerge.hemmerling@gmail.com,jdaniel4103@gmail.com,chen.wang004@email.ucr.edu"
+        
+        #email_recipients = "boerge.hemmerling@gmail.com"
 
         server.sendmail("lab", email_recipients.split(","), mytext)
     
@@ -158,6 +162,9 @@ if __name__ == '__main__':
 
     errtable = make_error_table(status_all)
 
-    send_email(status_all) 
+    #print(errtable)
+    #print(status_all)
+
+    send_email(status_all, override = True) 
 
 

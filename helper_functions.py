@@ -14,3 +14,10 @@ def conv_dt_to_epoch(dt):
 def trunc(s, digits = 1):
     return np.round(10**digits * s)/10**digits
 
+
+def moving_average(a, n = 3) :
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n
+
+

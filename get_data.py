@@ -12,7 +12,7 @@ from scipy.interpolate import interp1d
 import fileinput
 
 from helper_functions import conv_dt_to_epoch
-
+from helper_functions import moving_average
 
 
 

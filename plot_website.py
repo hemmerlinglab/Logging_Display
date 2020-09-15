@@ -42,7 +42,7 @@ def replace_invalid_values(arr, sensor):
 
 def make_plot(my_title, xarr, yarr, colorarr, legarr, limits_arr):
         s = figure(
-             width = 450, 
+             width = 340, 
              height = 350, 
              title = my_title,
              x_axis_type = "datetime",
@@ -104,6 +104,10 @@ def plot_fig(
 
             # replace invalid values
             y = replace_invalid_values(y, sensors[key])
+
+
+            # moving average
+            # not build in yet
 
             last_value = " ({1:{0}} {2})".format(sensors[key]['format'], label_conversion(y[-1]), sensors[key]['unit'])
         else:
@@ -222,6 +226,7 @@ save(p_yesterday)
 
 
 os.system('cat k0.html > index.html')
+os.system('echo "<hr>" >> index.html')
 os.system('cat k1.html >> index.html')
 os.system('echo "<hr>" >> index.html')
 
