@@ -32,6 +32,7 @@ from get_data import *
 from read_in_config import read_config
 
 from analoggaugewidget import *
+from dewartempwidget import *
 
 class App(QWidget):
  
@@ -77,6 +78,17 @@ class App(QWidget):
                 gauge.update_value(conversion(np.float(data[gauge.sensor_name]['y'][-1])))
             except:
                 print("Can't find value for " + str(gauge.sensor_name))
+
+        ### Special treatment for Dewar Widget ###
+        dewar_vals = []
+        for i in range(8):
+            sensor_name = str(i)
+            try:
+                conversion = lambda x : eval(self.sensors[sensor_name]['conversion'])
+                dewar_vals.append(conversion(np.float(data[sensor_name]['y'][-1])))
+            except:
+                print("Error setting value for dewar_{}".format(i))
+        self.dewar.update_value(dewar_vals)   
         
         self.update()
 
@@ -133,15 +145,24 @@ class App(QWidget):
         
         self.chilled_temp = AnalogGaugeWidget(opts = self.get_settings('temp'))
         
-        self.dewar_0 = AnalogGaugeWidget(opts = self.get_settings('0'))
-        self.dewar_1 = AnalogGaugeWidget(opts = self.get_settings('1'))
-        self.dewar_2 = AnalogGaugeWidget(opts = self.get_settings('2'))
-        self.dewar_3 = AnalogGaugeWidget(opts = self.get_settings('3'))
-        self.dewar_4 = AnalogGaugeWidget(opts = self.get_settings('4'))
-        self.dewar_5 = AnalogGaugeWidget(opts = self.get_settings('5'))
-        self.dewar_6 = AnalogGaugeWidget(opts = self.get_settings('6'))
-        self.dewar_7 = AnalogGaugeWidget(opts = self.get_settings('7'))
-
+        # self.dewar_0 = AnalogGaugeWidget(opts = self.get_settings('0'))
+        # self.dewar_1 = AnalogGaugeWidget(opts = self.get_settings('1'))
+        # self.dewar_2 = AnalogGaugeWidget(opts = self.get_settings('2'))
+        # self.dewar_3 = AnalogGaugeWidget(opts = self.get_settings('3'))
+        # self.dewar_4 = AnalogGaugeWidget(opts = self.get_settings('4'))
+        # self.dewar_5 = AnalogGaugeWidget(opts = self.get_settings('5'))
+        # self.dewar_6 = AnalogGaugeWidget(opts = self.get_settings('6'))
+        # self.dewar_7 = AnalogGaugeWidget(opts = self.get_settings('7'))
+        ### Swapping AnalogGaugeWidget for DewarTempWidget
+        opts0 = self.get_settings('0')
+        opts1 = self.get_settings('1')
+        opts2 = self.get_settings('2')
+        opts3 = self.get_settings('3')
+        opts4 = self.get_settings('4')
+        opts5 = self.get_settings('5')
+        opts6 = self.get_settings('6')
+        opts7 = self.get_settings('7')
+        self.dewar = DewarTempWidget(scl=1.5,opts=[opts0,opts1,opts2,opts3,opts4,opts5,opts6,opts7])
         
         self.rough_pressure = AnalogGaugeWidget(opts = self.get_settings('pressure'))
         self.hornet_pressure = AnalogGaugeWidget(opts = self.get_settings('hornet_pressure'))
@@ -160,14 +181,14 @@ class App(QWidget):
             self.pt_he_low_p,    
             self.pt_motor_current,
             self.chilled_temp,        
-            self.dewar_0,
-            self.dewar_1,
-            self.dewar_2,
-            self.dewar_3,
-            self.dewar_4,
-            self.dewar_5,
-            self.dewar_6,
-            self.dewar_7,
+            # self.dewar_0,
+            # self.dewar_1,
+            # self.dewar_2,
+            # self.dewar_3,
+            # self.dewar_4,
+            # self.dewar_5,
+            # self.dewar_6,
+            # self.dewar_7,
             self.rough_pressure,
             self.hornet_pressure,
             self.uhv_pressure
@@ -190,14 +211,15 @@ class App(QWidget):
         self.tab_main.layout.addWidget(self.pt_he_high_p, 0,2)
         self.tab_main.layout.addWidget(self.pt_he_low_p, 1,2)
 
-        self.tab_main.layout.addWidget(self.dewar_2, 0,3)
-        self.tab_main.layout.addWidget(self.dewar_1, 1,3)
-        self.tab_main.layout.addWidget(self.dewar_7, 2,3)
-        self.tab_main.layout.addWidget(self.dewar_3, 3,3)
-        self.tab_main.layout.addWidget(self.dewar_4, 0,4)
-        self.tab_main.layout.addWidget(self.dewar_5, 1,4)
-        self.tab_main.layout.addWidget(self.dewar_6, 2,4)
-        self.tab_main.layout.addWidget(self.dewar_0, 3,4)
+        self.tab_main.layout.addWidget(self.dewar,0,3,4,3)
+        # self.tab_main.layout.addWidget(self.dewar_2, 0,3)
+        # self.tab_main.layout.addWidget(self.dewar_1, 1,3)
+        # self.tab_main.layout.addWidget(self.dewar_7, 2,3)
+        # self.tab_main.layout.addWidget(self.dewar_3, 3,3)
+        # self.tab_main.layout.addWidget(self.dewar_4, 0,4)
+        # self.tab_main.layout.addWidget(self.dewar_5, 1,4)
+        # self.tab_main.layout.addWidget(self.dewar_6, 2,4)
+        # self.tab_main.layout.addWidget(self.dewar_0, 3,4)
 
         self.tab_main.layout.addWidget(self.rough_pressure,2,2)
         self.tab_main.layout.addWidget(self.hornet_pressure,3,2)
