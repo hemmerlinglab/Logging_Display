@@ -22,6 +22,8 @@ from helper_functions import *
 from get_data import *
 from check_errors import *
 
+#import warnings
+#warnings.filterwarnings('error')
 
 def replace_invalid_values(arr, sensor):
 
@@ -35,18 +37,23 @@ def replace_invalid_values(arr, sensor):
         high = inv_interval[1]
 
         # check if values are inside the invalid values interval
-        arr[(arr > low) & (arr < high)] = np.nan
+        try:
+            arr[(arr > low) & (arr < high)] = np.nan
+        except:
+            print(low)
+            print(high)
 
     return arr
 
 
-def make_plot(my_title, xarr, yarr, colorarr, legarr, limits_arr):
+def make_plot(my_title, xarr, yarr, colorarr, legarr, limits_arr, y_range = None):
         s = figure(
              width = 340, 
              height = 350, 
              title = my_title,
              x_axis_type = "datetime",
              tools = "",
+             y_range = None
              #y_range = [y_min, y_max],
              #tools = "pan,wheel_zoom,box_zoom,reset",
              #active_scroll="wheel_zoom"
@@ -60,6 +67,9 @@ def make_plot(my_title, xarr, yarr, colorarr, legarr, limits_arr):
                 s.renderers.extend([Span(location=limits_arr[k][1], dimension='width', line_dash = 'dashed', line_color=colorarr[k], line_width=1)])
 
         s.legend.location = 'top_left'
+
+        if not y_range == None:
+            s.y_range = Range1d(y_range[0], y_range[1])
               
         return s
 
@@ -69,7 +79,8 @@ def plot_fig(
         my_title = '',
         colorarr = [],
         sensorarr = [],
-        limit_lines = False
+        limit_lines = False,
+        plot_limits = None
         ):
 
     xarr = []
@@ -123,7 +134,7 @@ def plot_fig(
         else:
             limit_lines_arr.append([])
 
-    return make_plot(my_title, xarr, yarr, colorarr, legendarr, limit_lines_arr)
+    return make_plot(my_title, xarr, yarr, colorarr, legendarr, limit_lines_arr, y_range = plot_limits)
 
 
 def get_plots(data, date):
@@ -154,14 +165,17 @@ def get_plots(data, date):
             data,
             my_title = date + '- Chilled Water',
             colorarr = ['red', 'orange', 'green'],
-            sensorarr = ['temp', 'UCR_in', 'UCR_out']
+            sensorarr = ['temp', 'UCR_in', 'UCR_out'],
+            plot_limits = [40, 70]
             )
     
     s5 = plot_fig(
             data,
             my_title = date + '- Pressures',
-            colorarr = ['red', 'black', 'blue'],
-            sensorarr = ['pressure', 'hornet_pressure', 'uhv']
+            colorarr = ['red', 'black', 'blue', 'green', 'orange'],
+            sensorarr = ['pressure', 'hornet_pressure', 'uhv', 'foreline_01', 'foreline_04'],
+            plot_limits = [-9,3]
+            #plot_limits = [-9,-5]
             )
     
     s6 = plot_fig(
@@ -175,7 +189,8 @@ def get_plots(data, date):
             data,
             my_title = date + '- Dewar Temperature',
             colorarr = ['yellow', 'blue', 'red', 'black', 'green'],
-            sensorarr = ['1', '4', '7', '3', '2']
+            sensorarr = ['1', '4', '7', '3', '2'],
+            #plot_limits = [4.2,5]
             )
     
     s7 = plot_fig(
@@ -200,6 +215,10 @@ sensors = read_config()
 my_today = datetime.datetime.today()
 today = str(my_today.strftime('%Y-%m-%d'))
 yesterday = str((my_today - timedelta(1)).strftime('%Y-%m-%d'))
+
+
+#today = '2022-08-19'
+#yesterday = '2022-08-18'
 
 date = today
 

@@ -199,6 +199,15 @@ def readin_lab_temp_file(main_path, filename, extension = '.log', curr_weather =
     
     return output
 
+def get_foreline_pressures(main_path = '', my_today = None):
+
+    filename = my_today + '_foreline_pressures'
+
+    # read in data
+    data = readin_data(main_path, filename)
+
+    return (data)
+
 
 def get_lab_temperatures(main_path = '~/logging/Temperatures_Lab/', my_today = None):
 
@@ -250,6 +259,7 @@ def get_data(main_path = '/home/molecules/logging/', my_date = datetime.datetime
     data.append(get_dewar_temperatures(main_path = main_path + 'Dewar_Temperatures/', my_today = my_date))    
     data.append(get_chilled_water(main_path = main_path + 'PulseTube_Chilled_Water/', my_today = my_date))
     data.append(get_pulsetube(main_path = main_path + 'PulseTube/', my_today = my_date))
+    data.append(get_foreline_pressures(main_path = main_path + '1060_Foreline_Pressures/', my_today = my_date))
 
     # combine all data
     all_data = data[0].copy()
